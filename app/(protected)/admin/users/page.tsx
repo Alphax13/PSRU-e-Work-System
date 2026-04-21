@@ -1,0 +1,66 @@
+import { createAdminClient } from "@/lib/supabaseAdmin";
+import { getAuthUser } from "@/lib/auth";
+import UserForm from "./UserForm";
+import UserActions from "./UserActions";
+
+const ROLE_LABEL: Record<string, string> = { admin: "Admin", staff: "Staff" };
+const ROLE_COLOR: Record<string, string> = {
+  admin: "bg-purple-100 text-purple-700",
+  staff: "bg-blue-100 text-blue-700",
+};
+
+export default async function UsersPage() {
+  const adminClient = createAdminClient();
+  const authUser = await getAuthUser();
+
+  const { data: users } = await adminClient
+    .from("users")
+    .select("id, name, email, role, department, created_at")
+    .order("created_at", { ascending: false });
+
+  return (
+    <div className="space-y-6">
+      <h2 className="text-xl font-bold text-gray-800">จัดการบุคลากร</h2>
+
+      <UserForm />
+
+      <div className="rounded-xl bg-white shadow-sm overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b bg-gray-50 text-left text-gray-500">
+              <th className="px-4 py-3 font-medium">ชื่อ-นามสกุล</th>
+              <th className="px-4 py-3 font-medium">อีเมล</th>
+              <th className="px-4 py-3 font-medium">สังกัด</th>
+              <th className="px-4 py-3 font-medium">บทบาท</th>
+              <th className="px-4 py-3 font-medium">วันที่สร้าง</th>
+              <th className="px-4 py-3 font-medium">การกระทำ</th>
+            </tr>
+          </thead>
+          <tbody>
+            {(users ?? []).map((u) => (
+              <tr key={u.id} className="border-b last:border-0 hover:bg-gray-50">
+                <td className="px-4 py-3 font-medium text-gray-800">{u.name}</td>
+                <td className="px-4 py-3 text-gray-500">{u.email}</td>
+                <td className="px-4 py-3 text-gray-500">{u.department}</td>
+                <td className="px-4 py-3">
+                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${ROLE_COLOR[u.role] ?? ""}`}>
+                    {ROLE_LABEL[u.role] ?? u.role}
+                  </span>
+                </td>
+                <td className="px-4 py-3 text-gray-400 text-xs">
+                  {new Date(u.created_at).toLocaleDateString("th-TH")}
+                </td>
+                <td className="px-4 py-3">
+                  <UserActions id={u.id} name={u.name} department={u.department} role={u.role} currentUserId={authUser?.id ?? ""} />
+                </td>
+              </tr>
+            ))}
+            {(users ?? []).length === 0 && (
+              <tr><td colSpan={6} className="px-4 py-6 text-center text-gray-400">ยังไม่มีบุคลากรในระบบ</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
