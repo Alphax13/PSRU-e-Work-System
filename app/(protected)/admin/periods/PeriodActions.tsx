@@ -39,8 +39,8 @@ export default function PeriodActions({ id, currentStatus }: Props) {
     <>
       <div className="flex flex-wrap gap-2">
         {currentStatus === "draft" && (
-          <button onClick={() => showConfirm({ title: "เปิดใช้งานรอบนี้?", message: "รอบอื่นที่เปิดอยู่จะถูกปิดโดยอัตโนมัติ", confirmLabel: "เปิดใช้งาน", confirmClassName: "bg-green-600 hover:bg-green-700 text-white", onConfirm: () => changeStatus("active") })} disabled={loading}
-            className="rounded-lg bg-green-600 px-3 py-1 text-xs font-medium text-white hover:bg-green-700 disabled:opacity-50">
+          <button onClick={() => showConfirm({ title: "เปิดใช้งานรอบนี้?", message: "รอบอื่นที่เปิดอยู่จะถูกปิดโดยอัตโนมัติ", confirmLabel: "เปิดใช้งาน", confirmClassName: "bg-[#F5C400] hover:bg-[#E8A000] text-[#1A1A2E] font-semibold", onConfirm: () => changeStatus("active") })} disabled={loading}
+            className="rounded-lg bg-[#F5C400] px-3 py-1 text-xs font-semibold text-[#1A1A2E] hover:bg-[#E8A000] disabled:opacity-50">
             เปิดใช้งาน
           </button>
         )}
@@ -51,8 +51,8 @@ export default function PeriodActions({ id, currentStatus }: Props) {
           </button>
         )}
         {currentStatus === "closed" && (
-          <button onClick={() => showConfirm({ title: "เปิดรอบนี้ใหม่?", message: "รอบอื่นที่เปิดอยู่จะถูกปิดโดยอัตโนมัติ", confirmLabel: "เปิดใหม่", confirmClassName: "bg-blue-600 hover:bg-blue-700 text-white", onConfirm: () => changeStatus("active") })} disabled={loading}
-            className="rounded-lg bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-50">
+          <button onClick={() => showConfirm({ title: "เปิดรอบนี้ใหม่?", message: "รอบอื่นที่เปิดอยู่จะถูกปิดโดยอัตโนมัติ", confirmLabel: "เปิดใหม่", confirmClassName: "bg-[#F5C400] hover:bg-[#E8A000] text-[#1A1A2E] font-semibold", onConfirm: () => changeStatus("active") })} disabled={loading}
+            className="rounded-lg bg-[#F5C400] px-3 py-1 text-xs font-semibold text-[#1A1A2E] hover:bg-[#E8A000] disabled:opacity-50">
             เปิดใหม่
           </button>
         )}

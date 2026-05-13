@@ -76,7 +76,7 @@ function SectionActivitiesPanel({
         {hasDefaults && activities.length === 0 && (
           <button
             onClick={importDefaults}
-            className="rounded-lg border border-blue-300 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 hover:bg-blue-100"
+            className="rounded-lg border border-[#F5C400]/40 bg-[#FFFDE7] px-3 py-1.5 text-xs font-medium text-[#7a5c00] hover:bg-[#FFF9C4]"
           >
             นำเข้าค่าเริ่มต้น
           </button>
@@ -122,7 +122,7 @@ function SectionActivitiesPanel({
           <button
             onClick={addActivity}
             disabled={adding}
-            className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
+            className="rounded-lg bg-[#F5C400] px-4 py-2 text-sm font-semibold text-[#1A1A2E] hover:bg-[#E8A000] disabled:opacity-50"
           >
             {adding ? "..." : "+ เพิ่ม"}
           </button>
