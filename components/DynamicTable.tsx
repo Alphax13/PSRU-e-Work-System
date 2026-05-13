@@ -174,7 +174,7 @@ export default function DynamicTable({ sectionIndex, columns, periodId, sectionN
         <button
           type="button"
           onClick={addRow}
-          className="mt-3 rounded-lg border border-dashed border-blue-400 px-4 py-1.5 text-sm text-blue-600 hover:bg-blue-50"
+          className="mt-3 rounded-lg border border-dashed border-[#F5C400]/50 px-4 py-1.5 text-sm text-[#7a5c00] hover:bg-[#FFFDE7]"
         >
           + เพิ่มแถว
         </button>

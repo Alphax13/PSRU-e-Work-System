@@ -132,9 +132,9 @@ function SectionActivitiesPanel({
   const typeLabel = SECTION_TYPE_LABEL[section.order_no] ?? "รายการอิสระ";
   const typeBadgeColor =
     section.order_no === 6
-      ? "bg-green-100 text-green-700"
+      ? "bg-[#FFFDE7] text-[#7a5c00] border border-[#F5C400]/30"
       : section.order_no === 2 || section.order_no === 5
-      ? "bg-blue-100 text-blue-700"
+      ? "bg-[#FAFAF7] text-gray-500 border border-[#E5E3DC]"
       : "bg-gray-100 text-gray-500";
 
   return (
@@ -187,7 +187,7 @@ function SectionActivitiesPanel({
           {defaults.length > 0 && activities.length === 0 && (
             <button
               onClick={importDefaults}
-              className="mb-3 rounded-lg border border-blue-300 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 hover:bg-blue-100"
+              className="mb-3 rounded-lg border border-[#F5C400]/40 bg-[#FFFDE7] px-3 py-1.5 text-xs font-medium text-[#7a5c00] hover:bg-[#FFF3A0]"
             >
               ↓ นำเข้าค่าเริ่มต้น ({defaults.length} รายการ)
             </button>

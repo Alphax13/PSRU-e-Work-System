@@ -31,16 +31,16 @@ export default function ProfileCard({ profile }: { profile: User | null }) {
     <div className="w-full max-w-2xl">
       <h2 className="mb-5 text-xl font-bold text-gray-800">ข้อมูลส่วนตัว</h2>
 
-      <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-2xl border border-[#E5E3DC] bg-white shadow-[0_1px_4px_rgba(26,26,46,.06)]">
         {/* Avatar header */}
-        <div className="bg-gradient-to-r from-green-700 to-green-600 px-6 py-6">
+        <div className="bg-[#1A1A2E] px-6 py-6">
           <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white/20 text-2xl font-bold text-white ring-2 ring-white/30">
+            <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-[#F5C400] text-2xl font-bold text-[#1A1A2E]">
               {(profile?.name ?? "?")[0]}
             </div>
             <div>
               <p className="text-lg font-bold text-white">{profile?.name ?? "-"}</p>
-              <p className="text-sm text-green-200">{profile?.department ?? "-"}</p>
+              <p className="text-sm text-white/50">{profile?.department ?? "-"}</p>
             </div>
           </div>
         </div>
@@ -59,7 +59,7 @@ export default function ProfileCard({ profile }: { profile: User | null }) {
             <div className="border-t border-gray-100 px-6 py-4">
               <button
                 onClick={() => setEditing(true)}
-                className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
+                className="rounded-lg bg-[#F5C400] px-4 py-2 text-sm font-medium text-[#1A1A2E] hover:bg-[#E8A000]"
               >
                 แก้ไขข้อมูล
               </button>
@@ -81,7 +81,7 @@ export default function ProfileCard({ profile }: { profile: User | null }) {
                   name="name"
                   defaultValue={profile?.name ?? ""}
                   required
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                  className="w-full rounded-xl border border-[#E5E3DC] px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F5C400]/40 focus:border-[#F5C400]"
                 />
               </div>
               <div>
@@ -92,7 +92,7 @@ export default function ProfileCard({ profile }: { profile: User | null }) {
                   name="department"
                   defaultValue={profile?.department ?? ""}
                   required
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+                  className="w-full rounded-xl border border-[#E5E3DC] px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#F5C400]/40 focus:border-[#F5C400]"
                 />
               </div>
               <div>
@@ -102,7 +102,7 @@ export default function ProfileCard({ profile }: { profile: User | null }) {
                 <input
                   value={profile?.email ?? ""}
                   disabled
-                  className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-400"
+                  className="w-full rounded-xl border border-[#E5E3DC] bg-[#FAFAF7] px-3 py-2.5 text-sm text-gray-400"
                 />
               </div>
             </div>
@@ -110,14 +110,14 @@ export default function ProfileCard({ profile }: { profile: User | null }) {
               <button
                 type="submit"
                 disabled={pending}
-                className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50"
+                className="rounded-lg bg-[#F5C400] px-4 py-2 text-sm font-medium text-[#1A1A2E] hover:bg-[#E8A000] disabled:opacity-50"
               >
                 {pending ? "กำลังบันทึก..." : "บันทึก"}
               </button>
               <button
                 type="button"
                 onClick={() => setEditing(false)}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50"
+                className="rounded-lg border border-[#E5E3DC] px-4 py-2 text-sm text-gray-600 hover:bg-[#FAFAF7]"
               >
                 ยกเลิก
               </button>

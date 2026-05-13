@@ -3,34 +3,34 @@
 @tailwind utilities;
 
 /* ══════════════════════════════════════════════════
-   DESIGN TOKENS — CSS Custom Properties
+   DESIGN TOKENS — Modern Academic (Golden)
    ══════════════════════════════════════════════════ */
 :root {
   /* Backgrounds */
-  --background:       #f9fafb;
-  --foreground:       #111827;
-  --surface:          #ffffff;
-  --surface-muted:    #f1f5f9;
-  --surface-subtle:   #f8fafc;
+  --background:       #FAFAF7;
+  --foreground:       #1C1C1C;
+  --surface:          #FFFFFF;
+  --surface-muted:    #F5F5F0;
+  --surface-subtle:   #EFEFEA;
 
-  /* Brand */
-  --brand:            #15803d;
-  --brand-light:      #16a34a;
-  --brand-dark:       #166534;
-  --brand-muted:      #dcfce7;
-  --brand-fg:         #ffffff;
+  /* Brand — Golden Academic */
+  --brand:            #F5C400;
+  --brand-light:      #FFD633;
+  --brand-dark:       #1A1A2E;
+  --brand-muted:      #FFF9C4;
+  --brand-fg:         #1A1A2E;
 
   /* Text hierarchy */
-  --text-primary:     #111827;
+  --text-primary:     #1C1C1C;
   --text-secondary:   #374151;
   --text-muted:       #6b7280;
   --text-subtle:      #9ca3af;
   --text-disabled:    #d1d5db;
 
   /* Border */
-  --border:           #e5e7eb;
-  --border-muted:     #f3f4f6;
-  --border-focus:     #15803d;
+  --border:           #E5E3DC;
+  --border-muted:     #F0EEE8;
+  --border-focus:     #F5C400;
 
   /* Semantic */
   --success:          #16a34a;
@@ -43,10 +43,11 @@
   --info-bg:          #eff6ff;
 
   /* Elevation */
-  --shadow-sm:  0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
-  --shadow:     0 4px 12px rgba(0,0,0,.08), 0 2px 4px rgba(0,0,0,.04);
-  --shadow-lg:  0 10px 30px rgba(0,0,0,.10), 0 4px 8px rgba(0,0,0,.05);
-  --shadow-xl:  0 20px 50px rgba(0,0,0,.14), 0 8px 16px rgba(0,0,0,.06);
+  --shadow-sm:  0 1px 3px rgba(26,26,46,.07), 0 1px 2px rgba(26,26,46,.05);
+  --shadow:     0 4px 16px rgba(26,26,46,.09), 0 2px 4px rgba(26,26,46,.05);
+  --shadow-lg:  0 10px 32px rgba(26,26,46,.11), 0 4px 8px rgba(26,26,46,.06);
+  --shadow-xl:  0 20px 52px rgba(26,26,46,.15), 0 8px 16px rgba(26,26,46,.07);
+  --shadow-gold: 0 4px 16px rgba(245,196,0,.25);
 
   /* Radius */
   --radius-sm:  .5rem;    /* 8px  */
@@ -69,26 +70,26 @@
 .dark {
   color-scheme: dark;
 
-  --background:       #0f172a;
-  --foreground:       #f1f5f9;
-  --surface:          #1e293b;
-  --surface-muted:    #0f172a;
-  --surface-subtle:   #162032;
+  --background:       #0e0e1a;
+  --foreground:       #F0F0F0;
+  --surface:          #1A1A2E;
+  --surface-muted:    #141428;
+  --surface-subtle:   #0e0e1a;
 
-  --brand:            #22c55e;
-  --brand-light:      #4ade80;
-  --brand-dark:       #16a34a;
-  --brand-muted:      #052e16;
-  --brand-fg:         #ffffff;
+  --brand:            #F5C400;
+  --brand-light:      #FFD633;
+  --brand-dark:       #1A1A2E;
+  --brand-muted:      #2a2600;
+  --brand-fg:         #1A1A2E;
 
-  --text-primary:     #f1f5f9;
-  --text-secondary:   #e2e8f0;
-  --text-muted:       #94a3b8;
-  --text-subtle:      #64748b;
-  --text-disabled:    #475569;
+  --text-primary:     #F0F0F0;
+  --text-secondary:   #d1d5db;
+  --text-muted:       #9ca3af;
+  --text-subtle:      #6b7280;
+  --text-disabled:    #4b5563;
 
-  --border:           #334155;
-  --border-muted:     #1e293b;
+  --border:           #2e2e4a;
+  --border-muted:     #232336;
 
   --success-bg:       #052e16;
   --warning-bg:       #1c1007;
@@ -100,19 +101,20 @@
 }
 
 .dark body {
-  background-color: #0f172a;
-  color: #f1f5f9;
+  background-color: #0e0e1a;
+  color: #F0F0F0;
 }
 
 /* ── Dark-mode overrides (keep existing) ───────────────────── */
-.dark .bg-white          { background-color: #1e293b !important; }
-.dark .bg-gray-50        { background-color: #0f172a !important; }
-.dark .bg-gray-100       { background-color: #1e293b !important; }
-.dark .bg-gray-200       { background-color: #334155 !important; }
-.dark .bg-green-50       { background-color: #052e16 !important; }
+.dark .bg-white          { background-color: #1A1A2E !important; }
+.dark .bg-gray-50        { background-color: #0e0e1a !important; }
+.dark .bg-gray-100       { background-color: #1A1A2E !important; }
+.dark .bg-gray-200       { background-color: #2e2e4a !important; }
+.dark .bg-yellow-50      { background-color: #1e1a00 !important; }
+.dark .bg-amber-50       { background-color: #1a1500 !important; }
 .dark .bg-blue-50        { background-color: #0c1a2e !important; }
-.dark .bg-amber-50       { background-color: #1c1007 !important; }
 .dark .bg-red-50         { background-color: #1f0a0a !important; }
+.dark .bg-green-50       { background-color: #052e16 !important; }
 .dark .bg-purple-50      { background-color: #1a0d2e !important; }
 
 .dark .text-gray-900     { color: #f1f5f9 !important; }
@@ -122,31 +124,29 @@
 .dark .text-gray-500     { color: #64748b !important; }
 .dark .text-gray-400     { color: #475569 !important; }
 
-.dark .border-gray-100   { border-color: #1e293b !important; }
-.dark .border-gray-200   { border-color: #334155 !important; }
-.dark .border-gray-300   { border-color: #475569 !important; }
-.dark .border-green-100  { border-color: #052e16 !important; }
-.dark .border-blue-100   { border-color: #0c1a2e !important; }
+.dark .border-gray-100   { border-color: #232336 !important; }
+.dark .border-gray-200   { border-color: #2e2e4a !important; }
+.dark .border-gray-300   { border-color: #3a3a5c !important; }
 
 .dark input,
 .dark select,
 .dark textarea {
-  background-color: #1e293b !important;
-  border-color: #475569 !important;
-  color: #e2e8f0 !important;
+  background-color: #1A1A2E !important;
+  border-color: #2e2e4a !important;
+  color: #F0F0F0 !important;
 }
 .dark input::placeholder,
 .dark textarea::placeholder { color: #64748b !important; }
 
 .dark table thead tr,
-.dark th { background-color: #1e293b !important; color: #94a3b8 !important; }
-.dark td { border-color: #334155 !important; }
-.dark tr:hover td { background-color: #1e293b !important; }
+.dark th { background-color: #141428 !important; color: #9ca3af !important; }
+.dark td { border-color: #2e2e4a !important; }
+.dark tr:hover td { background-color: #1e1e35 !important; }
 
-.dark .lg\:border-r { border-color: #334155 !important; }
+.dark .lg\:border-r { border-color: #2e2e4a !important; }
 
-.dark .hover\:bg-gray-100:hover  { background-color: #334155 !important; }
-.dark .hover\:bg-gray-50:hover   { background-color: #1e293b !important; }
+.dark .hover\:bg-gray-100:hover  { background-color: #2e2e4a !important; }
+.dark .hover\:bg-gray-50:hover   { background-color: #1A1A2E !important; }
 
 /* ══════════════════════════════════════════════════
    GLOBAL BASE STYLES
@@ -169,30 +169,30 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Focus ring */
+  /* Focus ring — gold */
   :focus-visible {
-    outline: 2px solid var(--brand);
+    outline: 2px solid #F5C400;
     outline-offset: 2px;
     border-radius: var(--radius-sm);
   }
 
   /* Selection */
   ::selection {
-    background-color: #bbf7d0;
-    color: #14532d;
+    background-color: #fff176;
+    color: #1A1A2E;
   }
   .dark ::selection {
-    background-color: #166534;
-    color: #dcfce7;
+    background-color: #c48000;
+    color: #FAFAF7;
   }
 
   /* Scrollbar */
   ::-webkit-scrollbar          { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track    { background: transparent; }
-  ::-webkit-scrollbar-thumb    { background: #d1d5db; border-radius: 99px; }
-  ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
-  .dark ::-webkit-scrollbar-thumb { background: #475569; }
-  .dark ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+  ::-webkit-scrollbar-thumb    { background: #d4d0c4; border-radius: 99px; }
+  ::-webkit-scrollbar-thumb:hover { background: #b0aa98; }
+  .dark ::-webkit-scrollbar-thumb { background: #3a3a5c; }
+  .dark ::-webkit-scrollbar-thumb:hover { background: #4a4a6c; }
 }
 
 /* ══════════════════════════════════════════════════
@@ -210,17 +210,31 @@
 
   /* ── Surface card ────────────────────────────── */
   .card {
-    @apply bg-white rounded-xl border border-gray-200 shadow-soft-sm;
+    @apply bg-white rounded-xl border border-[#E5E3DC] shadow-[var(--shadow-sm)];
     transition: box-shadow var(--transition), transform var(--transition);
   }
-  .card:hover { @apply shadow-soft -translate-y-px; }
-  .dark .card {
-    @apply bg-[#1e293b] border-[#334155];
+  .card:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+  .dark .card { @apply bg-[#1A1A2E] border-[#2e2e4a]; }
+
+  /* ── Gold rule divider ───────────────────────── */
+  .divider-gold {
+    height: 2px;
+    background: linear-gradient(90deg, #F5C400 0%, #E8A000 60%, transparent 100%);
+    border: none;
+    border-radius: 1px;
+    margin: 1rem 0;
   }
 
-  /* ── Gradient brand banner ───────────────────── */
-  .banner-brand {
-    @apply bg-gradient-to-r from-brand-700 to-brand-600 text-white;
+  /* ── Gold table ──────────────────────────────── */
+  .table-gold thead {
+    background-color: #1A1A2E;
+    color: #F5C400;
+  }
+  .table-gold tbody tr:nth-child(even) {
+    background-color: #FFFDE7;
+  }
+  .dark .table-gold tbody tr:nth-child(even) {
+    background-color: #1e1c00 !important;
   }
 
   /* ── Skeleton ────────────────────────────────── */
@@ -267,15 +281,12 @@
    ══════════════════════════════════════════════════ */
 @layer utilities {
 
-  /* Gradient text */
-  .text-gradient-brand {
-    @apply bg-gradient-to-r from-brand-700 to-brand-500 bg-clip-text text-transparent;
-  }
-
-  /* Subtle page gradient background */
-  .bg-page {
-    background: radial-gradient(ellipse 80% 50% at 50% -10%, #dcfce720 0%, transparent 70%),
-                var(--background);
+  /* Gradient text — gold */
+  .text-gradient-gold {
+    background: linear-gradient(135deg, #F5C400 0%, #E8A000 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
   /* Hover lift */
@@ -287,9 +298,9 @@
     box-shadow: var(--shadow);
   }
 
-  /* Inset focus ring for inputs */
+  /* Gold focus ring for inputs */
   .focus-ring {
-    @apply focus:outline-none focus:ring-2 focus:ring-brand-600 focus:border-brand-600;
+    @apply focus:outline-none focus:ring-2 focus:ring-[#F5C400] focus:border-[#F5C400];
   }
 
   /* Truncate 2 lines */

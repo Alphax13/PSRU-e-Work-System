@@ -19,19 +19,19 @@ export interface ButtonProps
 // ─── Styles map ────────────────────────────────────────────────────
 const variantClasses: Record<Variant, string> = {
   primary:
-    "bg-brand-700 text-white hover:bg-brand-800 shadow-brand/30 shadow-sm " +
-    "active:scale-[.97] disabled:bg-brand-700/50",
+    "bg-[#F5C400] text-[#1A1A2E] font-semibold hover:bg-[#E8A000] shadow-[0_2px_8px_rgba(245,196,0,.30)] " +
+    "active:scale-[.97] disabled:opacity-50",
   secondary:
-    "bg-green-50 text-brand-700 hover:bg-green-100 border border-green-200 " +
+    "bg-[#FAFAF7] text-[#1A1A2E] border border-[#E5E3DC] hover:bg-[#F5F5F0] hover:border-[#F5C400]/40 " +
     "active:scale-[.97] disabled:opacity-50",
   ghost:
-    "bg-transparent text-gray-600 hover:bg-gray-100 hover:text-gray-900 " +
+    "bg-transparent text-gray-600 hover:bg-[#FAFAF7] hover:text-[#1A1A2E] " +
     "active:scale-[.97] disabled:opacity-40",
   danger:
     "bg-red-600 text-white hover:bg-red-700 shadow-sm " +
     "active:scale-[.97] disabled:opacity-50",
   outline:
-    "bg-white text-gray-700 border border-gray-300 hover:border-brand-600 hover:text-brand-700 " +
+    "bg-white text-[#1A1A2E] border border-[#1A1A2E] hover:bg-[#1A1A2E] hover:text-[#F5C400] " +
     "active:scale-[.97] disabled:opacity-40",
 };
 
@@ -67,7 +67,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
       className={[
         "inline-flex items-center justify-center font-medium",
         "transition-all duration-150 cursor-pointer select-none",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 focus-visible:ring-offset-2",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F5C400] focus-visible:ring-offset-2",
         "disabled:cursor-not-allowed",
         variantClasses[variant],
         sizeClasses[size],

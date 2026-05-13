@@ -141,7 +141,7 @@ function SectionCard({ section, periodId, activities, onActivityAdded, onActivit
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500">{sortedRules.length} เกณฑ์</span>
-          {hasItems && <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs text-blue-600">{activities.length} รายการ</span>}
+          {hasItems && <span className="rounded-full bg-[#FFFDE7] px-2 py-0.5 text-xs text-[#7a5c00] border border-[#F5C400]/30">{activities.length} รายการ</span>}
           <svg className={`h-4 w-4 text-gray-400 transition-transform ${open ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
@@ -232,7 +232,7 @@ function SectionCard({ section, periodId, activities, onActivityAdded, onActivit
                   <label className="mb-1 block text-xs text-gray-500">คะแนน</label>
                   <input type="number" step="0.5" min="0" value={ruleScore} onChange={(e) => setRuleScore(e.target.value)} className={`w-24 ${inputCls}`} />
                 </div>
-                <button onClick={addRule} disabled={addingRule} className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-50">
+                <button onClick={addRule} disabled={addingRule} className="rounded-lg bg-[#F5C400] px-4 py-2 text-sm font-semibold text-[#1A1A2E] hover:bg-[#E8A000] disabled:opacity-50">
                   {addingRule ? "..." : "+ เพิ่มเกณฑ์"}
                 </button>
               </div>
@@ -277,7 +277,7 @@ function SectionCard({ section, periodId, activities, onActivityAdded, onActivit
                               <div className="ml-3 flex shrink-0 gap-3">
                                 <button
                                   onClick={() => { setEditingItemId(act.id); setEditingItemName(act.name); }}
-                                  className="text-xs text-blue-500 hover:text-blue-700"
+                                  className="text-xs text-[#1A1A2E]/60 hover:text-[#F5C400]"
                                 >แก้ไข</button>
                                 <button onClick={() => setConfirmDeleteItem(act.id)} className="text-xs text-red-500 hover:text-red-700">ลบ</button>
                               </div>
@@ -360,14 +360,14 @@ export default function SectionsManager({ sections, periods, activePeriodId, ini
   return (
     <div className="space-y-4">
       {periods.length > 0 ? (
-        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3">
-          <span className="text-sm font-medium text-blue-800">รอบการประเมิน (สำหรับรายการตัวเลือก/กิจกรรม):</span>
-          <select value={selectedPeriodId ?? ""} onChange={(e) => handlePeriodChange(e.target.value)} className="rounded-lg border border-blue-200 bg-white px-3 py-1.5 text-sm text-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-400">
+        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-[#F5C400]/30 bg-[#FFFDE7] px-4 py-3">
+          <span className="text-sm font-medium text-[#7a5c00]">รอบการประเมิน (สำหรับรายการตัวเลือก/กิจกรรม):</span>
+          <select value={selectedPeriodId ?? ""} onChange={(e) => handlePeriodChange(e.target.value)} className="rounded-lg border border-[#F5C400]/40 bg-white px-3 py-1.5 text-sm text-[#1A1A2E] focus:outline-none focus:ring-2 focus:ring-[#F5C400]/40">
             {periods.map((p) => (
               <option key={p.id} value={p.id}>{p.name}{p.status === "active" ? " ✓" : ""}</option>
             ))}
           </select>
-          <span className="text-xs text-blue-500">เกณฑ์คะแนนและชื่อหัวข้อมีผลทุกรอบ — รายการตัวเลือก/กิจกรรมแยกตามรอบ</span>
+          <span className="text-xs text-[#7a5c00]/70">เกณฑ์คะแนนและชื่อหัวข้อมีผลทุกรอบ — รายการตัวเลือก/กิจกรรมแยกตามรอบ</span>
         </div>
       ) : (
         <div className="rounded-xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-700">

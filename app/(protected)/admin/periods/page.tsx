@@ -5,7 +5,7 @@ import PeriodActions from "./PeriodActions";
 
 const STATUS_LABEL: Record<string, string> = { active: "เปิดใช้งาน", draft: "ฉบับร่าง", closed: "ปิดแล้ว" };
 const STATUS_COLOR: Record<string, string> = {
-  active: "bg-green-100 text-green-700",
+  active: "bg-[#FFFDE7] text-[#7a5c00] border border-[#F5C400]/40",
   draft:  "bg-gray-100 text-gray-600",
   closed: "bg-red-100 text-red-600",
 };
@@ -55,3 +55,4 @@ export default async function PeriodsPage() {
     </div>
   );
 }
+

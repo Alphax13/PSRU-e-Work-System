@@ -31,7 +31,7 @@ export default async function EvalDetailPage({ params }: { params: Promise<{ id:
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <Link href="/admin/evaluations" className="text-sm text-blue-600 hover:underline">← กลับ</Link>
+          <Link href="/admin/evaluations" className="text-sm font-medium text-[#1A1A2E]/60 hover:text-[#F5C400] underline underline-offset-2">← กลับ</Link>
           <h2 className="text-xl font-bold text-gray-800">รายละเอียดการประเมิน</h2>
         </div>
         <a
@@ -56,7 +56,8 @@ export default async function EvalDetailPage({ params }: { params: Promise<{ id:
       {/* Entries per section */}
       <div className="space-y-4">
         {entries.map((entry) => {
-          const rows = Array.isArray(entry.data) ? entry.data : [entry.data];
+          const rows: Record<string, unknown>[] =
+          (entry.data as { rows?: Record<string, unknown>[] })?.rows ?? [];
 
           return (
             <div key={entry.id as string} className="rounded-xl bg-white p-5 shadow-sm">
@@ -76,8 +77,21 @@ export default async function EvalDetailPage({ params }: { params: Promise<{ id:
                   <tbody>
                     {(rows as Record<string, unknown>[]).map((row, i) => (
                       <tr key={i} className="border-b last:border-0">
-                        {Object.values(row).map((v, j) => (
-                          <td key={j} className="py-1.5 pr-4 text-gray-600">{String(v ?? "-")}</td>
+                        {Object.entries(row).map(([k, v], j) => (
+                          <td key={j} className="py-1.5 pr-4 text-gray-600">
+                            {k === "evidence" && typeof v === "string" && v.trim() !== "" ? (
+                              <a href={v} target="_blank" rel="noreferrer">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={v} alt="evidence" className="max-h-32 rounded border object-contain" />
+                              </a>
+                            ) : v == null ? (
+                              "-"
+                            ) : typeof v === "object" ? (
+                              JSON.stringify(v)
+                            ) : (
+                              String(v)
+                            )}
+                          </td>
                         ))}
                       </tr>
                     ))}

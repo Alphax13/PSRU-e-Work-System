@@ -42,7 +42,7 @@ export default function EvalActions({ evalId, status, currentSection8Score }: Pr
     <div className="flex flex-wrap items-center gap-2">
       {status === "submitted" ? (
         <>
-          <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">อนุมัติแล้ว</span>
+          <span className="rounded-full bg-[#FFFDE7] px-2.5 py-0.5 text-xs font-medium text-[#7a5c00] border border-[#F5C400]/30">อนุมัติแล้ว</span>
           <button onClick={reopen} disabled={loading} className="rounded-lg border border-gray-300 px-2 py-1 text-xs text-gray-600 hover:bg-gray-50 disabled:opacity-50">เปิดใหม่</button>
         </>
       ) : (
@@ -70,3 +70,4 @@ export default function EvalActions({ evalId, status, currentSection8Score }: Pr
     </div>
   );
 }
+

@@ -17,29 +17,29 @@ type BadgeVariant =
 
 const badgeVariants: Record<BadgeVariant, string> = {
   default:   "bg-gray-100   text-gray-700   border-gray-200",
-  success:   "bg-green-100  text-green-700  border-green-200",
-  warning:   "bg-amber-100  text-amber-700  border-amber-200",
+  success:   "bg-[#FFFDE7]  text-[#7a5c00]  border-[#F5C400]/30",
+  warning:   "bg-[#FFF9C4]  text-[#7a5c00]  border-[#F5C400]/30",
   danger:    "bg-red-100    text-red-700    border-red-200",
-  info:      "bg-blue-100   text-blue-700   border-blue-200",
+  info:      "bg-[#FAFAF7]  text-[#1A1A2E]  border-[#E5E3DC]",
   purple:    "bg-purple-100 text-purple-700 border-purple-200",
-  draft:     "bg-gray-100   text-gray-600   border-gray-200",
-  submitted: "bg-blue-100   text-blue-700   border-blue-200",
-  approved:  "bg-green-100  text-green-700  border-green-200",
-  active:    "bg-green-100  text-green-700  border-green-200",
+  draft:     "bg-[#FAFAF7]  text-gray-500   border-[#E5E3DC]",
+  submitted: "bg-[#FFF9C4]  text-[#7a5c00]  border-[#F5C400]/40",
+  approved:  "bg-[#FFFDE7]  text-[#7a5c00]  border-[#F5C400]/30",
+  active:    "bg-[#1A1A2E]  text-[#F5C400]  border-[#1A1A2E]",
   closed:    "bg-gray-100   text-gray-500   border-gray-200",
 };
 
 const dotColors: Record<BadgeVariant, string> = {
   default:   "bg-gray-400",
   success:   "bg-green-500",
-  warning:   "bg-amber-500",
+  warning:   "bg-[#F5C400]",
   danger:    "bg-red-500",
   info:      "bg-blue-500",
   purple:    "bg-purple-500",
-  draft:     "bg-gray-400",
-  submitted: "bg-blue-500",
+  draft:     "bg-gray-300",
+  submitted: "bg-[#F5C400]",
   approved:  "bg-green-500",
-  active:    "bg-green-500",
+  active:    "bg-[#F5C400]",
   closed:    "bg-gray-400",
 };
 

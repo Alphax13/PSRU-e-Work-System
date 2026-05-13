@@ -45,9 +45,9 @@ export default async function EvaluatePage() {
 
   if (!period) {
     return (
-      <div className="rounded-2xl bg-white p-8 shadow-sm text-center">
+      <div className="rounded-2xl border border-[#E5E3DC] bg-white p-8 text-center shadow-[0_1px_4px_rgba(26,26,46,.06)]">
         <p className="text-gray-500">ขณะนี้ยังไม่มีรอบการประเมินที่เปิดรับ</p>
-        <a href="/dashboard" className="mt-4 inline-block text-sm text-blue-600 hover:underline">
+        <a href="/dashboard" className="mt-4 inline-block text-sm font-medium text-[#1A1A2E] hover:text-[#F5C400] underline underline-offset-2">
           ← กลับหน้าหลัก
         </a>
       </div>
@@ -56,9 +56,9 @@ export default async function EvaluatePage() {
 
   if (sections.length === 0) {
     return (
-      <div className="rounded-2xl bg-white p-8 shadow-sm text-center">
+      <div className="rounded-2xl border border-[#E5E3DC] bg-white p-8 text-center shadow-[0_1px_4px_rgba(26,26,46,.06)]">
         <p className="text-gray-500">ยังไม่มีหัวข้อการประเมิน กรุณาติดต่อผู้ดูแลระบบ</p>
-        <a href="/dashboard" className="mt-4 inline-block text-sm text-blue-600 hover:underline">
+        <a href="/dashboard" className="mt-4 inline-block text-sm font-medium text-[#1A1A2E] hover:text-[#F5C400] underline underline-offset-2">
           ← กลับหน้าหลัก
         </a>
       </div>

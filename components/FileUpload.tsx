@@ -54,13 +54,13 @@ export default function FileUpload({
     <div>
       <div
         onClick={() => inputRef.current?.click()}
-        className="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 px-4 py-6 text-sm text-gray-500 transition hover:border-blue-400 hover:bg-blue-50"
+        className="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#E5E3DC] bg-[#FAFAF7] px-4 py-6 text-sm text-gray-500 transition hover:border-[#F5C400]/50 hover:bg-[#FFFDE7]/40"
       >
         {uploading ? (
           <span>กำลังอัปโหลด…</span>
         ) : fileName ? (
           <>
-            <span className="font-medium text-green-600">✓ {fileName}</span>
+            <span className="font-medium text-[#7a5c00]">✓ {fileName}</span>
             <span className="mt-1 text-xs text-gray-400">คลิกเพื่อเปลี่ยนไฟล์</span>
           </>
         ) : (

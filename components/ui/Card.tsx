@@ -21,13 +21,13 @@ const Card = forwardRef<HTMLDivElement, CardProps>(function Card(
     <div
       ref={ref}
       className={[
-        "rounded-xl border bg-white shadow-soft-sm",
-        "dark:bg-[#1e293b] dark:border-[#334155]",
+        "rounded-xl border bg-white shadow-[0_1px_4px_rgba(26,26,46,.07)]",
+        "dark:bg-[#1A1A2E] dark:border-[#2e2e4a]",
         noPadding ? "" : "p-5",
         hoverable
-          ? "transition-all duration-150 hover:-translate-y-px hover:shadow-soft cursor-pointer"
+          ? "transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_4px_16px_rgba(26,26,46,.10)] cursor-pointer"
           : "",
-        glass ? "glass" : "border-gray-200",
+        glass ? "glass" : "border-[#E5E3DC]",
         className,
       ]
         .filter(Boolean)

@@ -41,7 +41,7 @@ export default function PeriodForm() {
           <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" />
         </div>
         <div className="flex items-end">
-          <button type="submit" disabled={saving} className="w-full rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
+          <button type="submit" disabled={saving} className="w-full rounded-lg bg-[#F5C400] px-4 py-2.5 text-sm font-semibold text-[#1A1A2E] hover:bg-[#E8A000] disabled:opacity-50">
             {saving ? "กำลังบันทึก..." : "เพิ่มรอบ"}
           </button>
         </div>
@@ -49,3 +49,4 @@ export default function PeriodForm() {
     </form>
   );
 }
+

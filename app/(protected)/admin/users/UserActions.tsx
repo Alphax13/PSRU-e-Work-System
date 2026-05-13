@@ -58,14 +58,14 @@ export default function UserActions({ id, name, department, role, currentUserId 
           <option value="staff">Staff</option>
           <option value="admin">Admin</option>
         </select>
-        <button onClick={() => setConfirmSave(true)} disabled={loading} className="rounded-lg bg-green-600 px-3 py-1 text-xs font-medium text-white hover:bg-green-700 disabled:opacity-50">บันทึก</button>
+        <button onClick={() => setConfirmSave(true)} disabled={loading} className="rounded-lg bg-[#F5C400] px-3 py-1 text-xs font-semibold text-[#1A1A2E] hover:bg-[#E8A000] disabled:opacity-50">บันทึก</button>
         <button onClick={() => { setEditing(false); setError(""); }} className="rounded-lg border px-3 py-1 text-xs text-gray-600 hover:bg-gray-50">ยกเลิก</button>
         <ConfirmModal
           open={confirmSave}
           title="บันทึกการแก้ไขข้อมูลบุคลากร?"
           message={`แก้ไขข้อมูลของ "${name}" ?`}
           confirmLabel="บันทึก"
-          confirmClassName="bg-green-600 hover:bg-green-700 text-white"
+          confirmClassName="bg-[#F5C400] hover:bg-[#E8A000] text-[#1A1A2E] font-semibold"
           onConfirm={() => { setConfirmSave(false); saveEdit(); }}
           onCancel={() => setConfirmSave(false)}
         />
@@ -93,4 +93,5 @@ export default function UserActions({ id, name, department, role, currentUserId 
     </div>
   );
 }
+
 

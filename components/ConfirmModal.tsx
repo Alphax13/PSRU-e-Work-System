@@ -17,7 +17,7 @@ export default function ConfirmModal({
   title,
   message,
   confirmLabel = "ยืนยัน",
-  confirmClassName = "bg-green-600 hover:bg-green-700 text-white",
+  confirmClassName = "bg-[#F5C400] hover:bg-[#E8A000] text-[#1A1A2E] font-semibold",
   cancelLabel = "ยกเลิก",
   onConfirm,
   onCancel,

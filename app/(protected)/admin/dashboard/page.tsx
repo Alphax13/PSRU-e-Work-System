@@ -14,51 +14,58 @@ export default async function AdminDashboardPage() {
   const submitted  = Number(sRows[0]?.cnt ?? 0);
 
   const stats = [
-    { label: "บุคลากร (staff)", value: totalUsers, color: "bg-blue-50 text-blue-700" },
-    { label: "แบบประเมินทั้งหมด", value: totalEvals, color: "bg-purple-50 text-purple-700" },
-    { label: "ส่งแล้ว (submitted)", value: submitted, color: "bg-green-50 text-green-700" },
-    { label: "ยังไม่ส่ง (draft)", value: totalEvals - submitted, color: "bg-yellow-50 text-yellow-700" },
+    { label: "บุคลากร (staff)", value: totalUsers, gold: true },
+    { label: "แบบประเมินทั้งหมด", value: totalEvals },
+    { label: "ส่งแล้ว (submitted)", value: submitted },
+    { label: "ยังไม่ส่ง (draft)", value: totalEvals - submitted },
   ];
 
   return (
     <div>
-      <h2 className="mb-5 text-xl font-bold text-gray-800">ภาพรวมระบบ</h2>
+      <h2 className="mb-5 text-xl font-bold text-[#1A1A2E]">ภาพรวมระบบ</h2>
 
       {/* Stat cards */}
       <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((s) => (
-          <div key={s.label} className={`rounded-xl p-5 ${s.color}`}>
-            <p className="text-3xl font-bold">{s.value}</p>
-            <p className="mt-1 text-sm font-medium">{s.label}</p>
+          <div key={s.label} className={`rounded-xl p-5 ${
+            s.gold
+              ? "bg-[#1A1A2E] text-white shadow-[0_4px_16px_rgba(26,26,46,.18)]"
+              : "border border-[#E5E3DC] bg-white shadow-[0_1px_4px_rgba(26,26,46,.06)]"
+          }`}>
+            <p className={`text-3xl font-bold ${s.gold ? "text-[#F5C400]" : "text-[#1A1A2E]"}`}>{s.value}</p>
+            <p className={`mt-1 text-sm font-medium ${s.gold ? "text-white/60" : "text-gray-500"}`}>{s.label}</p>
           </div>
         ))}
       </div>
 
       {/* Recent periods */}
-      <div className="rounded-xl bg-white p-5 shadow-sm">
-        <h3 className="mb-3 font-semibold text-gray-700">รอบการประเมินล่าสุด</h3>
+      <div className="rounded-xl border border-[#E5E3DC] bg-white shadow-[0_1px_4px_rgba(26,26,46,.06)]">
+        <div className="flex items-center gap-2 border-b border-[#E5E3DC] px-5 py-3">
+          <div className="h-1 w-4 rounded bg-[#F5C400]" />
+          <h3 className="font-semibold text-[#1A1A2E]">รอบการประเมินล่าสุด</h3>
+        </div>
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b text-left text-gray-500">
-              <th className="pb-2 font-medium">ชื่อรอบ</th>
-              <th className="pb-2 font-medium">เริ่ม</th>
-              <th className="pb-2 font-medium">สิ้นสุด</th>
-              <th className="pb-2 font-medium">สถานะ</th>
+            <tr className="bg-[#1A1A2E] text-left text-[#F5C400]">
+              <th className="px-5 py-2.5 font-medium">ชื่อรอบ</th>
+              <th className="px-5 py-2.5 font-medium">เริ่ม</th>
+              <th className="px-5 py-2.5 font-medium">สิ้นสุด</th>
+              <th className="px-5 py-2.5 font-medium">สถานะ</th>
             </tr>
           </thead>
           <tbody>
-            {periods.map((p) => (
-              <tr key={p.id} className="border-b last:border-0">
-                <td className="py-2 pr-4">{p.name}</td>
-                <td className="py-2 pr-4 text-gray-500">{fmtDate(p.start_date as Date)}</td>
-                <td className="py-2 pr-4 text-gray-500">{fmtDate(p.end_date as Date)}</td>
-                <td className="py-2">
+            {periods.map((p, idx) => (
+              <tr key={p.id} className={idx % 2 === 0 ? "bg-white" : "bg-[#FFFDE7]/40"}>
+                <td className="px-5 py-2.5 pr-4 font-medium text-[#1A1A2E]">{p.name}</td>
+                <td className="px-5 py-2.5 pr-4 text-gray-500">{fmtDate(p.start_date as Date)}</td>
+                <td className="px-5 py-2.5 pr-4 text-gray-500">{fmtDate(p.end_date as Date)}</td>
+                <td className="px-5 py-2.5">
                   <StatusBadge status={p.status} />
                 </td>
               </tr>
             ))}
             {periods.length === 0 && (
-              <tr><td colSpan={4} className="py-4 text-center text-gray-400">ยังไม่มีรอบการประเมิน</td></tr>
+              <tr><td colSpan={4} className="py-6 text-center text-gray-400">ยังไม่มีรอบการประเมิน</td></tr>
             )}
           </tbody>
         </table>
@@ -69,13 +76,13 @@ export default async function AdminDashboardPage() {
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, string> = {
-    active: "bg-green-100 text-green-700",
-    draft:  "bg-gray-100 text-gray-600",
-    closed: "bg-red-100 text-red-600",
+    active: "bg-[#F5C400]/15 text-[#7a5c00] border border-[#F5C400]/40",
+    draft:  "bg-[#FAFAF7] text-gray-500 border border-[#E5E3DC]",
+    closed: "bg-red-50 text-red-600 border border-red-200",
   };
   const label: Record<string, string> = { active: "เปิดใช้งาน", draft: "ฉบับร่าง", closed: "ปิดแล้ว" };
   return (
-    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${map[status] ?? ""}`}>
+    <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${map[status] ?? ""}`}>
       {label[status] ?? status}
     </span>
   );

@@ -89,6 +89,21 @@ CREATE TABLE IF NOT EXISTS public.period_activities (
 );
 
 -- ============================================================
+-- 8. SYSTEM SETTINGS (key-value store for admin-configurable values)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS public.system_settings (
+  key         TEXT PRIMARY KEY,
+  value       TEXT NOT NULL DEFAULT '',
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Seed default values
+INSERT INTO public.system_settings (key, value) VALUES
+  ('dean_name', 'ผู้ช่วยศาสตราจารย์ ดร.กฤษ  สุจริตตั้งธรรม'),
+  ('dean_title', 'คณบดีคณะวิทยาศาสตร์และเทคโนโลยี')
+ON CONFLICT (key) DO NOTHING;
+
+-- ============================================================
 -- INDEXES
 -- ============================================================
 CREATE INDEX IF NOT EXISTS idx_evaluations_user_id   ON public.evaluations(user_id);

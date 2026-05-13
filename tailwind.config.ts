@@ -13,26 +13,35 @@ const config: Config = {
         background: "var(--background)",
         foreground: "var(--foreground)",
 
-        // Brand palette (PSRU green)
+        // Brand palette — Golden Academic
         brand: {
-          50:  "#f0fdf4",
-          100: "#dcfce7",
-          200: "#bbf7d0",
-          300: "#86efac",
-          400: "#4ade80",
-          500: "#22c55e",
-          600: "#16a34a",
-          700: "#15803d",  // primary
-          800: "#166534",  // dark
-          900: "#14532d",
-          950: "#052e16",
+          50:  "#fffde7",
+          100: "#fff9c4",
+          200: "#fff176",
+          300: "#ffee58",
+          400: "#ffca28",
+          500: "#F5C400",  // primary gold
+          600: "#E8A000",  // amber hover
+          700: "#c48000",
+          800: "#9a6200",
+          900: "#6d4600",
+          950: "#3d2800",
+        },
+
+        // Dark anchor
+        anchor: {
+          DEFAULT: "#1A1A2E",
+          light:   "#252540",
+          muted:   "#2e2e4e",
+          subtle:  "#3a3a5c",
         },
 
         // Surface / neutral
         surface: {
-          DEFAULT: "#ffffff",
-          muted:   "#f9fafb",
-          subtle:  "#f1f5f9",
+          DEFAULT: "#FAFAF7",
+          muted:   "#F5F5F0",
+          subtle:  "#EFEFEA",
+          white:   "#FFFFFF",
         },
 
         // Semantic
@@ -44,7 +53,8 @@ const config: Config = {
 
       // ── Font ──────────────────────────────────────────────
       fontFamily: {
-        sans: ["var(--font-kanit)", "Kanit", "ui-sans-serif", "system-ui", "sans-serif"],
+        sans:    ["var(--font-dmsans)",  "DM Sans",  "var(--font-kanit)", "Kanit", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ["var(--font-playfair)", "Playfair Display", "Georgia", "serif"],
       },
 
       // ── Border Radius ─────────────────────────────────────

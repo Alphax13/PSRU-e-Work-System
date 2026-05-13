@@ -35,7 +35,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
       {label && (
         <label
           htmlFor={inputId}
-          className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+          className="mb-1 block text-sm font-semibold text-[#1A1A2E] dark:text-[#F0F0F0]"
         >
           {label}
         </label>
@@ -52,19 +52,19 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           ref={ref}
           id={inputId}
           className={[
-            "block rounded-lg border bg-white text-sm text-gray-900",
+            "block rounded-xl border bg-white text-sm text-[#1C1C1C]",
             "placeholder:text-gray-400",
             "transition-all duration-150",
-            "focus:outline-none focus:ring-2 focus:ring-brand-600 focus:border-brand-600",
-            "disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed",
+            "focus:outline-none focus:ring-2 focus:ring-[#F5C400]/40 focus:border-[#F5C400]",
+            "disabled:bg-[#FAFAF7] disabled:text-gray-400 disabled:cursor-not-allowed",
             error
               ? "border-red-400 focus:ring-red-400 focus:border-red-400"
-              : "border-gray-300 hover:border-gray-400",
+              : "border-[#E5E3DC] hover:border-[#F5C400]/40",
             leadingIcon ? "pl-10" : "pl-3",
             trailingIcon ? "pr-10" : "pr-3",
-            "py-2",
+            "py-2.5",
             fullWidth ? "w-full" : "",
-            "dark:bg-[#1e293b] dark:border-[#475569] dark:text-gray-100 dark:placeholder:text-gray-500",
+            "dark:bg-[#1A1A2E] dark:border-[#2e2e4a] dark:text-[#F0F0F0] dark:placeholder:text-gray-500",
             className,
           ]
             .filter(Boolean)
@@ -116,7 +116,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+            className="mb-1 block text-sm font-semibold text-[#1A1A2E] dark:text-[#F0F0F0]"
           >
             {label}
           </label>
@@ -125,14 +125,14 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
           ref={ref}
           id={inputId}
           className={[
-            "block rounded-lg border bg-white text-sm text-gray-900",
+            "block rounded-xl border bg-white text-sm text-[#1C1C1C]",
             "transition-all duration-150",
-            "focus:outline-none focus:ring-2 focus:ring-brand-600 focus:border-brand-600",
-            "disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed",
-            error ? "border-red-400" : "border-gray-300 hover:border-gray-400",
-            "px-3 py-2",
+            "focus:outline-none focus:ring-2 focus:ring-[#F5C400]/40 focus:border-[#F5C400]",
+            "disabled:bg-[#FAFAF7] disabled:text-gray-400 disabled:cursor-not-allowed",
+            error ? "border-red-400" : "border-[#E5E3DC] hover:border-[#F5C400]/40",
+            "px-3 py-2.5",
             fullWidth ? "w-full" : "",
-            "dark:bg-[#1e293b] dark:border-[#475569] dark:text-gray-100",
+            "dark:bg-[#1A1A2E] dark:border-[#2e2e4a] dark:text-[#F0F0F0]",
             className,
           ]
             .filter(Boolean)
@@ -176,7 +176,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         {label && (
           <label
             htmlFor={inputId}
-            className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
+            className="mb-1 block text-sm font-semibold text-[#1A1A2E] dark:text-[#F0F0F0]"
           >
             {label}
           </label>
@@ -185,15 +185,15 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           ref={ref}
           id={inputId}
           className={[
-            "block rounded-lg border bg-white text-sm text-gray-900",
+            "block rounded-xl border bg-white text-sm text-[#1C1C1C]",
             "placeholder:text-gray-400 resize-y",
             "transition-all duration-150",
-            "focus:outline-none focus:ring-2 focus:ring-brand-600 focus:border-brand-600",
-            "disabled:bg-gray-50 disabled:text-gray-400 disabled:cursor-not-allowed",
-            error ? "border-red-400" : "border-gray-300 hover:border-gray-400",
-            "px-3 py-2",
+            "focus:outline-none focus:ring-2 focus:ring-[#F5C400]/40 focus:border-[#F5C400]",
+            "disabled:bg-[#FAFAF7] disabled:text-gray-400 disabled:cursor-not-allowed",
+            error ? "border-red-400" : "border-[#E5E3DC] hover:border-[#F5C400]/40",
+            "px-3 py-2.5",
             fullWidth ? "w-full" : "",
-            "dark:bg-[#1e293b] dark:border-[#475569] dark:text-gray-100 dark:placeholder:text-gray-500",
+            "dark:bg-[#1A1A2E] dark:border-[#2e2e4a] dark:text-[#F0F0F0] dark:placeholder:text-gray-500",
             className,
           ]
             .filter(Boolean)

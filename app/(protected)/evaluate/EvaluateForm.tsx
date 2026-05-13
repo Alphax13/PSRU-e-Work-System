@@ -176,11 +176,11 @@ function ActivityChecklist({
           <label
             key={name}
             className={`flex cursor-pointer items-center gap-3 rounded-xl border px-4 py-3 transition-all ${
-              locked ? "cursor-not-allowed opacity-70" : "hover:bg-gray-50"
+              locked ? "cursor-not-allowed opacity-70" : "hover:bg-[#FFFDE7]/40"
             } ${
               checked
-                ? "border-green-400 bg-green-50"
-                : "border-gray-200 bg-white"
+                ? "border-[#F5C400]/50 bg-[#FFFDE7]"
+                : "border-[#E5E3DC] bg-white"
             }`}
           >
             <input
@@ -188,18 +188,18 @@ function ActivityChecklist({
               checked={checked}
               onChange={() => toggle(name)}
               disabled={locked}
-              className="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500"
+              className="h-4 w-4 rounded border-[#E5E3DC] text-[#F5C400] focus:ring-[#F5C400]/40"
             />
-            <span className={`text-sm ${checked ? "font-medium text-green-800" : "text-gray-700"}`}>
+            <span className={`text-sm ${checked ? "font-medium text-[#7a5c00]" : "text-gray-700"}`}>
               {name}
             </span>
             {checked && (
-              <span className="ml-auto text-xs font-semibold text-green-600">เข้าร่วม ✓</span>
+              <span className="ml-auto text-xs font-semibold text-[#7a5c00]">เข้าร่วม ✓</span>
             )}
           </label>
         );
       })}
-      <div className="mt-3 rounded-lg bg-blue-50 px-4 py-2.5 text-sm text-blue-700">
+      <div className="mt-3 rounded-lg border border-[#F5C400]/30 bg-[#FFFDE7] px-4 py-2.5 text-sm text-[#7a5c00]">
         เข้าร่วมแล้ว <span className="font-bold">{checkedCount}</span> / {activities.length} กิจกรรม
       </div>
     </div>
@@ -285,29 +285,29 @@ function SectionCriteria({ orderNo }: { orderNo: number }) {
   const criteria = SECTION_CRITERIA[orderNo];
   if (!criteria) return null;
   return (
-    <div className="mb-4 overflow-hidden rounded-xl border border-blue-100 bg-blue-50">
-      <div className="border-b border-blue-100 bg-blue-100/60 px-3 py-2">
-        <p className="text-xs font-semibold text-blue-800">เกณฑ์การให้คะแนน</p>
+    <div className="mb-4 overflow-hidden rounded-xl border border-[#F5C400]/25 bg-[#FFFDE7]/60">
+      <div className="border-b border-[#F5C400]/20 bg-[#FFFDE7] px-3 py-2">
+        <p className="text-xs font-semibold text-[#7a5c00]">เกณฑ์การให้คะแนน</p>
       </div>
       <div className="p-3">
         <table className="w-full text-xs">
           <thead>
-            <tr className="text-left text-blue-700">
+            <tr className="text-left text-[#7a5c00]">
               <th className="pb-1 pr-4 font-medium">ผลงาน / เงื่อนไข</th>
               <th className="pb-1 w-20 text-right font-medium">คะแนน</th>
             </tr>
           </thead>
           <tbody>
             {criteria.rows.map((row, i) => (
-              <tr key={i} className="border-t border-blue-100">
+              <tr key={i} className="border-t border-[#F5C400]/15">
                 <td className="py-1 pr-4 text-gray-700">{row.label}</td>
-                <td className="py-1 text-right font-semibold text-blue-700">{row.score}</td>
+                <td className="py-1 text-right font-semibold text-[#7a5c00]">{row.score}</td>
               </tr>
             ))}
           </tbody>
         </table>
         {criteria.note && (
-          <p className="mt-2 border-t border-blue-100 pt-1.5 text-xs text-gray-500 italic">
+          <p className="mt-2 border-t border-[#F5C400]/15 pt-1.5 text-xs text-gray-500 italic">
             หมายเหตุ: {criteria.note}
           </p>
         )}
@@ -407,15 +407,15 @@ function ScoreSummary({
                       <span className="text-orange-500">{incomplete} รายการยังไม่สมบูรณ์</span>
                     )}
                     {nextRule && (
-                      <span className="text-blue-600">
+                      <span className="text-[#7a5c00]">
                         ต้องการ {describeRule(nextRule.condition as Record<string, unknown>, nextRule.score)} เพื่อได้ {nextRule.score} คะแนน
                       </span>
                     )}
                   </div>
                   {/* Progress bar */}
-                  <div className="mt-2 h-1.5 w-full rounded-full bg-gray-100">
+                  <div className="mt-2 h-1.5 w-full rounded-full bg-[#E5E3DC]">
                     <div
-                      className={`h-1.5 rounded-full transition-all ${score > 0 ? "bg-green-500" : "bg-gray-200"}`}
+                      className={`h-1.5 rounded-full transition-all ${score > 0 ? "bg-[#F5C400]" : "bg-[#E5E3DC]"}`}
                       style={{ width: `${pct}%` }}
                     />
                   </div>

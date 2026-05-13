@@ -77,7 +77,7 @@ export default async function ActivitiesPage({
       {!activePeriod ? (
         <div className="rounded-xl bg-white p-8 text-center shadow-sm">
           <p className="text-gray-500">ยังไม่มีรอบการประเมิน</p>
-          <Link href="/admin/periods" className="mt-3 inline-block text-sm text-blue-600 hover:underline">
+          <Link href="/admin/periods" className="mt-3 inline-block text-sm font-medium text-[#1A1A2E]/60 hover:text-[#F5C400] underline underline-offset-2">
             สร้างรอบการประเมิน →
           </Link>
         </div>

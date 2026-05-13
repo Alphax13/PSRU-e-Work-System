@@ -1000,6 +1000,19 @@ export async function GET(
   const u = { name: ev.user_name as string, email: ev.user_email as string, department: ev.user_department as string };
   const period = { name: ev.period_name as string, start_date: ev.period_start as string, end_date: ev.period_end as string };
 
+  // ── System settings ──
+  let deanName = "ผู้ช่วยศาสตราจารย์ ดร.กฤษ  สุจริตตั้งธรรม";
+  let deanTitle = "คณบดีคณะวิทยาศาสตร์และเทคโนโลยี";
+  try {
+    const settingRows = await sql`SELECT key, value FROM system_settings WHERE key IN ('dean_name', 'dean_title')`;
+    for (const row of settingRows) {
+      if (row.key === "dean_name") deanName = row.value as string;
+      if (row.key === "dean_title") deanTitle = row.value as string;
+    }
+  } catch {
+    // table may not exist yet — fall back to defaults
+  }
+
   // ── Section data map ──
   type SecData = {
     name: string; order_no: number; max_score: number;
@@ -1461,8 +1474,8 @@ export async function GET(
   children.push(
     ...sigLine("ผู้รับการประเมิน", u?.name ?? ""),
     ...sigLine("พยาน (ประธานหลักสูตร/หัวหน้างาน)", ""),
-    ...sigLine("คณบดี", "ผู้ช่วยศาสตราจารย์ ดร.กฤษ  สุจริตตั้งธรรม", 40),
-    p(t("คณบดีคณะวิทยาศาสตร์และเทคโนโลยี", { size: 32, italic: true }), AlignmentType.CENTER, 0, 0)
+    ...sigLine("คณบดี", deanName, 40),
+    p(t(deanTitle, { size: 32, italic: true }), AlignmentType.CENTER, 0, 0)
   );
 
   // ── ACTIVITY IMAGES ──────────────────────────────────────────────
@@ -1472,7 +1485,8 @@ export async function GET(
   for (const entry of entries ?? []) {
     const sec = entry.sections as {
       id: string; name: string; order_no: number;
-    };
+    } | null | undefined;
+    if (!sec) continue;
     const rows: EntryRow[] = ((entry.data as { rows?: EntryRow[] })?.rows ?? []);
     
     // Check sections 2 and 4 only (ภาระงานด้านการพัฒนาตนเอง และ ทำนุบำรุงศิลปวัฒนธรรม)
