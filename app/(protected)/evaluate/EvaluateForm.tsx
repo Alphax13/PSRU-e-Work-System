@@ -421,7 +421,7 @@ function ScoreSummary({
                   </div>
                 </div>
                 <div className="flex-shrink-0 text-right">
-                  <span className={`text-xl font-bold ${score > 0 ? "text-green-700" : "text-gray-300"}`}>
+                  <span className={`text-xl font-bold ${score > 0 ? "text-[#7a5c00]" : "text-gray-300"}`}>
                     {score}
                   </span>
                   <span className="text-xs text-gray-400">/{section.max_score}</span>
@@ -432,20 +432,20 @@ function ScoreSummary({
         })}
 
         {/* Total */}
-        <div className="overflow-hidden rounded-xl border-2 border-green-300 bg-green-50">
+        <div className="overflow-hidden rounded-xl border-2 border-[#F5C400]/50 bg-[#FFFDE7]">
           <div className="flex items-center justify-between px-4 py-3">
             <div>
               <p className="font-bold text-gray-800">คะแนนรวม (ผลสัมฤทธิ์ของงาน)</p>
               <p className="text-xs text-gray-500 mt-0.5">* หมวด 8 ผู้บริหารจะพิจารณาให้คะแนนหลังส่ง</p>
             </div>
             <div className="text-right">
-              <span className="text-3xl font-bold text-green-700">{total}</span>
+              <span className="text-3xl font-bold text-[#7a5c00]">{total}</span>
               <span className="text-sm text-gray-500">/70</span>
             </div>
           </div>
-          <div className="h-2 w-full bg-green-100">
+          <div className="h-2 w-full bg-[#F5C400]/20">
             <div
-              className="h-2 bg-green-500 transition-all"
+              className="h-2 bg-[#F5C400] transition-all"
               style={{ width: `${Math.min((total / 70) * 100, 100)}%` }}
             />
           </div>
@@ -580,7 +580,7 @@ export default function EvaluateForm({ sections, periodId, userId, periodName, i
               <div key={group.label} className="mb-3">
                 <p
                   className={`mb-1 px-3 py-1 text-xs font-semibold leading-snug ${
-                    group.color === "blue" ? "text-blue-700" : "text-purple-700"
+                    group.color === "blue" ? "text-[#1A1A2E] font-semibold" : "text-[#1A1A2E]/70"
                   }`}
                 >
                   {group.label}
@@ -601,8 +601,8 @@ export default function EvaluateForm({ sections, periodId, userId, periodName, i
                       className={`mb-0.5 flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition-all ${
                         isAct
                           ? group.color === "blue"
-                            ? "bg-blue-600 text-white shadow-sm"
-                            : "bg-purple-600 text-white shadow-sm"
+                            ? "bg-[#F5C400] text-[#1A1A2E] shadow-sm"
+                            : "bg-[#1A1A2E] text-[#F5C400] shadow-sm"
                           : "text-gray-600 hover:bg-white hover:shadow-sm"
                       }`}
                     >
@@ -610,7 +610,7 @@ export default function EvaluateForm({ sections, periodId, userId, periodName, i
                       {rowCount > 0 && (
                         <span
                           className={`ml-1.5 flex-shrink-0 rounded-full px-1.5 text-xs font-bold ${
-                            isAct ? "bg-white/30 text-white" : "bg-green-100 text-green-700"
+                            isAct ? "bg-white/20 text-current" : "bg-[#FFFDE7] text-[#7a5c00]"
                           }`}
                         >
                           {rowCount}
@@ -627,7 +627,7 @@ export default function EvaluateForm({ sections, periodId, userId, periodName, i
                 onClick={() => navigateTo("summary")}
                 className={`flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-all ${
                   isSummary
-                    ? "bg-green-600 text-white shadow-sm"
+                    ? "bg-[#F5C400] text-[#1A1A2E] shadow-sm"
                     : "text-gray-600 hover:bg-white hover:shadow-sm"
                 }`}
               >
@@ -706,14 +706,14 @@ export default function EvaluateForm({ sections, periodId, userId, periodName, i
               <p className="mb-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">{submitError}</p>
             )}
             {currentStatus === "submitted" ? (
-              <div className="flex items-center gap-3 rounded-xl bg-green-50 border border-green-200 px-4 py-3">
-                <svg className="h-5 w-5 flex-shrink-0 text-green-600" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <div className="flex items-center gap-3 rounded-xl bg-[#FFFDE7] border border-[#F5C400]/40 px-4 py-3">
+                <svg className="h-5 w-5 flex-shrink-0 text-[#7a5c00]" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <p className="text-sm font-medium text-green-800">
+                <p className="text-sm font-medium text-[#7a5c00]">
                   ส่งแบบประเมินเรียบร้อยแล้ว — ไม่สามารถแก้ไขได้อีก (1 รอบประเมิน / 1 ครั้ง)
                 </p>
-                <a href="/history" className="ml-auto rounded-lg bg-green-600 px-4 py-1.5 text-sm font-medium text-white hover:bg-green-700">
+                <a href="/history" className="ml-auto rounded-lg bg-[#F5C400] px-4 py-1.5 text-sm font-semibold text-[#1A1A2E] hover:bg-[#E8A000]">
                   ดูประวัติ →
                 </a>
               </div>
@@ -743,7 +743,7 @@ export default function EvaluateForm({ sections, periodId, userId, periodName, i
                   <button
                     type="button"
                     onClick={() => navigateTo("summary")}
-                    className="rounded-lg border border-green-400 bg-green-50 px-3 py-1.5 text-sm font-medium text-green-700 hover:bg-green-100"
+                    className="rounded-lg border border-[#F5C400]/40 bg-[#FFFDE7] px-3 py-1.5 text-sm font-medium text-[#7a5c00] hover:bg-[#FFF9C4]"
                   >
                     ดูสรุปคะแนน →
                   </button>
@@ -765,7 +765,7 @@ export default function EvaluateForm({ sections, periodId, userId, periodName, i
                     onClick={() => setConfirmSubmitOpen(true)}
                     disabled={submitting || !allSectionsFilled}
                     title={!allSectionsFilled ? "กรุณากรอกข้อมูลทุกส่วนให้ครบก่อนส่ง" : undefined}
-                    className="rounded-lg bg-green-600 px-5 py-1.5 text-sm font-medium text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="rounded-lg bg-[#F5C400] px-5 py-1.5 text-sm font-semibold text-[#1A1A2E] hover:bg-[#E8A000] disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     {submitting ? "กำลังส่ง..." : "ส่งแบบประเมิน"}
                   </button>
@@ -784,7 +784,7 @@ export default function EvaluateForm({ sections, periodId, userId, periodName, i
         title="ยืนยันการส่งแบบประเมิน"
         message="เมื่อส่งแล้วจะไม่สามารถแก้ไขได้อีก คุณต้องการส่งแบบประเมินนี้ใช่หรือไม่?"
         confirmLabel={submitting ? "กำลังส่ง..." : "ส่งแบบประเมิน"}
-        confirmClassName="bg-green-600 hover:bg-green-700 text-white"
+        confirmClassName="bg-[#F5C400] hover:bg-[#E8A000] text-[#1A1A2E] font-semibold"
         onConfirm={() => { setConfirmSubmitOpen(false); handleSave("submitted"); }}
         onCancel={() => setConfirmSubmitOpen(false)}
       />

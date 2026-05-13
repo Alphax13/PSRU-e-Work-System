@@ -117,7 +117,7 @@ function SectionActivitiesPanel({
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addActivity(); } }}
             placeholder="ชื่อกิจกรรมใหม่..."
-            className="flex-1 rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+            className="flex-1 rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#F5C400]/40 focus:border-[#F5C400]"
           />
           <button
             onClick={addActivity}

@@ -7,7 +7,7 @@ import UserActions from "./UserActions";
 const ROLE_LABEL: Record<string, string> = { admin: "Admin", staff: "Staff" };
 const ROLE_COLOR: Record<string, string> = {
   admin: "bg-purple-100 text-purple-700",
-  staff: "bg-blue-100 text-blue-700",
+  staff: "bg-[#FFFDE7] text-[#7a5c00] border border-[#F5C400]/30",
 };
 
 export default async function UsersPage() {

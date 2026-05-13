@@ -56,16 +56,16 @@ export default function EvalActions({ evalId, status, currentSection8Score }: Pr
             placeholder="หมวด 8 (0–1)"
           />
           <button onClick={approve} disabled={loading}
-            className="rounded-lg bg-green-600 px-3 py-1 text-xs font-medium text-white hover:bg-green-700 disabled:opacity-50">
+            className="rounded-lg bg-[#F5C400] px-3 py-1 text-xs font-semibold text-[#1A1A2E] hover:bg-[#E8A000] disabled:opacity-50">
             อนุมัติ
           </button>
         </div>
       )}
-      <button onClick={() => setShowDetail(v => !v)} className="rounded-lg border px-2 py-1 text-xs text-blue-600 hover:bg-blue-50">
+      <button onClick={() => setShowDetail(v => !v)} className="rounded-lg border border-[#E5E3DC] px-2 py-1 text-xs text-[#1A1A2E] hover:bg-[#FFFDE7]">
         {showDetail ? "ซ่อน" : "ดูรายละเอียด"}
       </button>
       {showDetail && (
-        <a href={`/admin/evaluations/${evalId}`} className="rounded-lg bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700">เปิดหน้าเต็ม</a>
+        <a href={`/admin/evaluations/${evalId}`} className="rounded-lg bg-[#1A1A2E] px-3 py-1 text-xs font-medium text-[#F5C400] hover:bg-[#2e2e4a]">เปิดหน้าเต็ม</a>
       )}
     </div>
   );

@@ -38,7 +38,7 @@ export default async function EvaluationsPage({
         <h2 className="text-xl font-bold text-gray-800">ผลการประเมินทั้งหมด</h2>
         <a
           href={`/api/admin/export-csv${periodFilter ? `?period=${periodFilter}` : ""}`}
-          className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
+          className="rounded-lg bg-[#1A1A2E] px-4 py-2 text-sm font-medium text-[#F5C400] hover:bg-[#2e2e4a]"
         >
           Export CSV
         </a>
@@ -46,14 +46,14 @@ export default async function EvaluationsPage({
 
       {/* Filters */}
       <form method="GET" className="flex flex-wrap gap-3">
-        <select name="period" defaultValue={periodFilter ?? ""} className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+        <select name="period" defaultValue={periodFilter ?? ""} className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#F5C400]/40 focus:border-[#F5C400]">
           <option value="">ทุกรอบการประเมิน</option>
           {periods.map((p) => (
             <option key={p.id as string} value={p.id as string}>{p.name as string}</option>
           ))}
         </select>
-        <input name="search" defaultValue={search ?? ""} placeholder="ค้นหาชื่อ / อีเมล" className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 w-56" />
-        <button type="submit" className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700">ค้นหา</button>
+        <input name="search" defaultValue={search ?? ""} placeholder="ค้นหาชื่อ / อีเมล" className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#F5C400]/40 focus:border-[#F5C400] w-56" />
+        <button type="submit" className="rounded-lg bg-[#F5C400] px-4 py-2 text-sm font-semibold text-[#1A1A2E] hover:bg-[#E8A000]">ค้นหา</button>
       </form>
 
       {/* Table */}
@@ -76,9 +76,9 @@ export default async function EvaluationsPage({
                   <td className="px-4 py-3 text-gray-500">{(ev.user_email as string) ?? "-"}</td>
                   <td className="px-4 py-3 text-gray-500">{(ev.user_department as string) ?? "-"}</td>
                   <td className="px-4 py-3 text-gray-500 text-xs max-w-48 truncate">{(ev.period_name as string) ?? "-"}</td>
-                  <td className="px-4 py-3 text-right font-semibold text-blue-700">{ev.total_score as number}</td>
+                  <td className="px-4 py-3 text-right font-semibold text-[#7a5c00]">{ev.total_score as number}</td>
                   <td className="px-4 py-3">
-                    <a href={`/admin/evaluations/${ev.id as string}`} className="rounded-lg bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700">ดูรายละเอียด</a>
+                    <a href={`/admin/evaluations/${ev.id as string}`} className="rounded-lg bg-[#1A1A2E] px-3 py-1 text-xs font-medium text-[#F5C400] hover:bg-[#2e2e4a]">ดูรายละเอียด</a>
                   </td>
                 </tr>
             ))}
