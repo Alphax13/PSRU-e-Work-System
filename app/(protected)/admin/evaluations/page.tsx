@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabaseServer";
+import { sql } from "@/lib/db";
 import Link from "next/link";
 
 export default async function EvaluationsPage({
@@ -7,25 +7,29 @@ export default async function EvaluationsPage({
   searchParams: Promise<{ period?: string; search?: string }>;
 }) {
   const { period: periodFilter, search } = await searchParams;
-  const supabase = await createClient();
 
-  const [{ data: periods }, { data: rawEvals }] = await Promise.all([
-    supabase.from("evaluation_periods").select("id, name, status").order("created_at", { ascending: false }),
-    supabase
-      .from("evaluations")
-      .select("id, status, total_score, created_at, period_id, user_id, users(name, email, department), evaluation_periods(name)")
-      .eq("status", "submitted")
-      .order("created_at", { ascending: false }),
+  const [periods, rawEvals] = await Promise.all([
+    sql`SELECT id, name, status FROM evaluation_periods ORDER BY created_at DESC`,
+    sql`
+      SELECT e.id, e.status, e.total_score, e.created_at, e.period_id, e.user_id,
+             u.name AS user_name, u.email AS user_email, u.department AS user_department,
+             p.name AS period_name
+      FROM evaluations e
+      LEFT JOIN users u ON u.id = e.user_id
+      LEFT JOIN evaluation_periods p ON p.id = e.period_id
+      WHERE e.status = 'submitted'
+      ORDER BY e.created_at DESC
+    `,
   ]);
 
-  let evals = rawEvals ?? [];
+  let evals = rawEvals;
   if (periodFilter) evals = evals.filter((e) => e.period_id === periodFilter);
   if (search) {
     const q = search.toLowerCase();
-    evals = evals.filter((e) => {
-      const u = e.users as { name: string; email: string; department: string } | null;
-      return (u?.name ?? "").toLowerCase().includes(q) || (u?.email ?? "").toLowerCase().includes(q);
-    });
+    evals = evals.filter((e) =>
+      ((e.user_name as string) ?? "").toLowerCase().includes(q) ||
+      ((e.user_email as string) ?? "").toLowerCase().includes(q)
+    );
   }
 
   return (
@@ -44,8 +48,8 @@ export default async function EvaluationsPage({
       <form method="GET" className="flex flex-wrap gap-3">
         <select name="period" defaultValue={periodFilter ?? ""} className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
           <option value="">ทุกรอบการประเมิน</option>
-          {(periods ?? []).map((p) => (
-            <option key={p.id} value={p.id}>{p.name}</option>
+          {periods.map((p) => (
+            <option key={p.id as string} value={p.id as string}>{p.name as string}</option>
           ))}
         </select>
         <input name="search" defaultValue={search ?? ""} placeholder="ค้นหาชื่อ / อีเมล" className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 w-56" />
@@ -66,22 +70,18 @@ export default async function EvaluationsPage({
             </tr>
           </thead>
           <tbody>
-            {evals.map((ev) => {
-              const u = ev.users as { name: string; email: string; department: string } | null;
-              const p = ev.evaluation_periods as { name: string } | null;
-              return (
-                <tr key={ev.id} className="border-b last:border-0 hover:bg-gray-50">
-                  <td className="px-4 py-3 font-medium text-gray-800">{u?.name ?? "-"}</td>
-                  <td className="px-4 py-3 text-gray-500">{u?.email ?? "-"}</td>
-                  <td className="px-4 py-3 text-gray-500">{u?.department ?? "-"}</td>
-                  <td className="px-4 py-3 text-gray-500 text-xs max-w-48 truncate">{p?.name ?? "-"}</td>
-                  <td className="px-4 py-3 text-right font-semibold text-blue-700">{ev.total_score}</td>
+            {evals.map((ev) => (
+                <tr key={ev.id as string} className="border-b last:border-0 hover:bg-gray-50">
+                  <td className="px-4 py-3 font-medium text-gray-800">{(ev.user_name as string) ?? "-"}</td>
+                  <td className="px-4 py-3 text-gray-500">{(ev.user_email as string) ?? "-"}</td>
+                  <td className="px-4 py-3 text-gray-500">{(ev.user_department as string) ?? "-"}</td>
+                  <td className="px-4 py-3 text-gray-500 text-xs max-w-48 truncate">{(ev.period_name as string) ?? "-"}</td>
+                  <td className="px-4 py-3 text-right font-semibold text-blue-700">{ev.total_score as number}</td>
                   <td className="px-4 py-3">
-                    <a href={`/admin/evaluations/${ev.id}`} className="rounded-lg bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700">ดูรายละเอียด</a>
+                    <a href={`/admin/evaluations/${ev.id as string}`} className="rounded-lg bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700">ดูรายละเอียด</a>
                   </td>
                 </tr>
-              );
-            })}
+            ))}
             {evals.length === 0 && (
               <tr><td colSpan={6} className="px-4 py-6 text-center text-gray-400">ไม่พบข้อมูลการประเมิน</td></tr>
             )}

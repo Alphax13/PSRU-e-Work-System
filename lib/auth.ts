@@ -1,42 +1,28 @@
-import { createClient } from "@/lib/supabaseServer";
+import { auth } from "@/auth";
+import { sql } from "@/lib/db";
 import type { User } from "@/lib/types";
 
 /**
- * Returns the authenticated Supabase auth user, or null.
+ * Returns the session user object, or null.
  */
 export async function getAuthUser() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  return user;
+  const session = await auth();
+  return session?.user ?? null;
 }
 
 /**
- * Returns the full user profile row from public.users, or null.
+ * Returns the full user profile row from users table, or null.
  */
 export async function getUserProfile(): Promise<User | null> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const session = await auth();
+  if (!session?.user?.id) return null;
 
-  if (!user) return null;
-
-  const { data, error } = await supabase
-    .from("users")
-    .select("*")
-    .eq("id", user.id)
-    .single();
-
-  if (error || !data) return null;
-  return data as User;
-}
-
-/**
- * Signs out the current user.
- */
-export async function signOut() {
-  const supabase = await createClient();
-  await supabase.auth.signOut();
+  const rows = await sql`
+    SELECT id, name, email, role, department, created_at
+    FROM users
+    WHERE id = ${session.user.id}
+    LIMIT 1
+  `;
+  if (!rows[0]) return null;
+  return rows[0] as unknown as User;
 }

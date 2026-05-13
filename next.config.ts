@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Prevent Turbopack/webpack from bundling native Node.js packages
+  serverExternalPackages: ["pg", "ws"],
 };
 
 export default nextConfig;

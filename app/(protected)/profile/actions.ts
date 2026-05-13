@@ -1,11 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { createClient } from "@/lib/supabaseServer";
+import { getAuthUser } from "@/lib/auth";
+import { sql } from "@/lib/db";
 
 export async function updateProfile(_prev: { error?: string; success?: boolean } | null, formData: FormData) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getAuthUser();
   if (!user) return { error: "กรุณาเข้าสู่ระบบก่อน" };
 
   const name = (formData.get("name") as string)?.trim();
@@ -13,12 +13,7 @@ export async function updateProfile(_prev: { error?: string; success?: boolean }
 
   if (!name || !department) return { error: "กรุณากรอกชื่อ-นามสกุล และสังกัด/แผนก" };
 
-  const { error } = await supabase
-    .from("users")
-    .update({ name, department })
-    .eq("id", user.id);
-
-  if (error) return { error: error.message };
+  await sql`UPDATE users SET name = ${name}, department = ${department} WHERE id = ${user.id}`;
 
   revalidatePath("/profile");
   return { success: true };

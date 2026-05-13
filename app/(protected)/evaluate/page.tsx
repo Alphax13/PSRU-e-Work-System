@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getUserProfile } from "@/lib/auth";
 import { getSectionsWithRules, getActivePeriod, getPeriodActivities } from "@/lib/queries";
-import { createClient } from "@/lib/supabaseServer";
+import { sql } from "@/lib/db";
 import EvaluateForm from "./EvaluateForm";
 import type { EntryRow } from "@/lib/schemas";
 
@@ -15,24 +15,26 @@ export default async function EvaluatePage() {
   ]);
 
   // Load existing evaluation + entries for this period
-  const supabase = await createClient();
-  const { data: existingEval } = await supabase
-    .from("evaluations")
-    .select("id, status")
-    .eq("user_id", profile.id)
-    .eq("period_id", (period?.id ?? ""))
-    .maybeSingle();
-
+  let existingEval: { id: string; status: string } | null = null;
   let initialRows: { section_id: string; rows: EntryRow[] }[] = [];
-  if (existingEval) {
-    const { data: entries } = await supabase
-      .from("entries")
-      .select("section_id, data")
-      .eq("evaluation_id", existingEval.id);
-    initialRows = (entries ?? []).map((e) => ({
-      section_id: e.section_id,
-      rows: ((e.data as { rows: EntryRow[] })?.rows ?? []) as EntryRow[],
-    }));
+
+  if (period) {
+    const evRows = await sql`
+      SELECT id, status FROM evaluations
+      WHERE user_id = ${profile.id} AND period_id = ${period.id}
+      LIMIT 1
+    `;
+    existingEval = evRows[0] ? { id: evRows[0].id as string, status: evRows[0].status as string } : null;
+
+    if (existingEval) {
+      const entries = await sql`
+        SELECT section_id, data FROM entries WHERE evaluation_id = ${existingEval.id}
+      `;
+      initialRows = entries.map((e) => ({
+        section_id: e.section_id as string,
+        rows: ((e.data as { rows: EntryRow[] })?.rows ?? []) as EntryRow[],
+      }));
+    }
   }
 
   // Load period-specific activities for section 6

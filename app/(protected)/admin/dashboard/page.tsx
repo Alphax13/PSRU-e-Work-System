@@ -1,21 +1,23 @@
-import { createClient } from "@/lib/supabaseServer";
+import { sql } from "@/lib/db";
+import { fmtDate } from "@/lib/format";
 
 export default async function AdminDashboardPage() {
-  const supabase = await createClient();
+  const [uRows, tRows, sRows, periods] = await Promise.all([
+    sql`SELECT COUNT(*) AS cnt FROM users WHERE role = 'staff'`,
+    sql`SELECT COUNT(*) AS cnt FROM evaluations`,
+    sql`SELECT COUNT(*) AS cnt FROM evaluations WHERE status = 'submitted'`,
+    sql`SELECT id, name, status, start_date, end_date FROM evaluation_periods ORDER BY created_at DESC LIMIT 5`,
+  ]);
 
-  const [{ count: totalUsers }, { count: totalEvals }, { count: submitted }, { data: periods }] =
-    await Promise.all([
-      supabase.from("users").select("*", { count: "exact", head: true }).eq("role", "staff"),
-      supabase.from("evaluations").select("*", { count: "exact", head: true }),
-      supabase.from("evaluations").select("*", { count: "exact", head: true }).eq("status", "submitted"),
-      supabase.from("evaluation_periods").select("id,name,status,start_date,end_date").order("created_at", { ascending: false }).limit(5),
-    ]);
+  const totalUsers = Number(uRows[0]?.cnt ?? 0);
+  const totalEvals = Number(tRows[0]?.cnt ?? 0);
+  const submitted  = Number(sRows[0]?.cnt ?? 0);
 
   const stats = [
-    { label: "บุคลากร (staff)", value: totalUsers ?? 0, color: "bg-blue-50 text-blue-700" },
-    { label: "แบบประเมินทั้งหมด", value: totalEvals ?? 0, color: "bg-purple-50 text-purple-700" },
-    { label: "ส่งแล้ว (submitted)", value: submitted ?? 0, color: "bg-green-50 text-green-700" },
-    { label: "ยังไม่ส่ง (draft)", value: (totalEvals ?? 0) - (submitted ?? 0), color: "bg-yellow-50 text-yellow-700" },
+    { label: "บุคลากร (staff)", value: totalUsers, color: "bg-blue-50 text-blue-700" },
+    { label: "แบบประเมินทั้งหมด", value: totalEvals, color: "bg-purple-50 text-purple-700" },
+    { label: "ส่งแล้ว (submitted)", value: submitted, color: "bg-green-50 text-green-700" },
+    { label: "ยังไม่ส่ง (draft)", value: totalEvals - submitted, color: "bg-yellow-50 text-yellow-700" },
   ];
 
   return (
@@ -45,17 +47,17 @@ export default async function AdminDashboardPage() {
             </tr>
           </thead>
           <tbody>
-            {(periods ?? []).map((p) => (
+            {periods.map((p) => (
               <tr key={p.id} className="border-b last:border-0">
                 <td className="py-2 pr-4">{p.name}</td>
-                <td className="py-2 pr-4 text-gray-500">{p.start_date}</td>
-                <td className="py-2 pr-4 text-gray-500">{p.end_date}</td>
+                <td className="py-2 pr-4 text-gray-500">{fmtDate(p.start_date as Date)}</td>
+                <td className="py-2 pr-4 text-gray-500">{fmtDate(p.end_date as Date)}</td>
                 <td className="py-2">
                   <StatusBadge status={p.status} />
                 </td>
               </tr>
             ))}
-            {(periods ?? []).length === 0 && (
+            {periods.length === 0 && (
               <tr><td colSpan={4} className="py-4 text-center text-gray-400">ยังไม่มีรอบการประเมิน</td></tr>
             )}
           </tbody>

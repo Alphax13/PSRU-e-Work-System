@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getAuthUser, getUserProfile } from "@/lib/auth";
-import { createClient } from "@/lib/supabaseServer";
+import { sql } from "@/lib/db";
 import SidebarLayout from "@/components/SidebarLayout";
 
 export default async function ProtectedLayout({ children }: { children: React.ReactNode }) {
@@ -8,12 +8,10 @@ export default async function ProtectedLayout({ children }: { children: React.Re
   if (!user) redirect("/login");
 
   const profile = await getUserProfile();
-  const supabase = await createClient();
-  const { data: period } = await supabase
-    .from("evaluation_periods")
-    .select("name")
-    .eq("status", "active")
-    .maybeSingle();
+  const periods = await sql`
+    SELECT name FROM evaluation_periods WHERE status = 'active' LIMIT 1
+  `;
+  const period = periods[0] ?? null;
 
   return (
     <SidebarLayout profile={profile} periodName={period?.name ?? null}>

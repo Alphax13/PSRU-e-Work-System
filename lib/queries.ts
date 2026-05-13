@@ -1,45 +1,56 @@
-import { createClient } from "@/lib/supabaseServer";
-import { createAdminClient } from "@/lib/supabaseAdmin";
+import { sql } from "@/lib/db";
 import type { Section, SectionRule } from "@/lib/types";
 
 export async function getSectionsWithRules(): Promise<
   (Section & { rules: SectionRule[] })[]
 > {
-  const supabase = await createClient();
+  const rows = await sql`
+    SELECT
+      s.id, s.name, s.max_score, s.order_no,
+      COALESCE(
+        json_agg(
+          json_build_object('id', sr.id, 'section_id', sr.section_id, 'condition', sr.condition, 'score', sr.score)
+          ORDER BY sr.score DESC
+        ) FILTER (WHERE sr.id IS NOT NULL),
+        '[]'::json
+      ) AS section_rules
+    FROM sections s
+    LEFT JOIN section_rules sr ON sr.section_id = s.id
+    GROUP BY s.id
+    ORDER BY s.order_no
+  `;
 
-  const { data: sections, error } = await supabase
-    .from("sections")
-    .select("*, section_rules(*)")
-    .order("order_no");
-
-  if (error || !sections) return [];
-
-  return sections.map((s: Section & { section_rules: SectionRule[] }) => ({
-    ...s,
-    rules: s.section_rules ?? [],
+  return rows.map((s) => ({
+    id: s.id as string,
+    name: s.name as string,
+    max_score: Number(s.max_score),
+    order_no: Number(s.order_no),
+    rules: (s.section_rules as SectionRule[]) ?? [],
   }));
 }
 
 export async function getActivePeriod() {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("evaluation_periods")
-    .select("*")
-    .eq("status", "active")
-    .single();
-  return data;
+  const rows = await sql`
+    SELECT * FROM evaluation_periods WHERE status = 'active' LIMIT 1
+  `;
+  return (rows[0] ?? null) as {
+    id: string;
+    name: string;
+    start_date: string;
+    end_date: string;
+    status: string;
+    created_at: string;
+  } | null;
 }
 
 export async function getPeriodActivities(
   periodId: string,
   sectionId: string
 ): Promise<string[]> {
-  const supabase = createAdminClient();
-  const { data } = await supabase
-    .from("period_activities")
-    .select("name")
-    .eq("period_id", periodId)
-    .eq("section_id", sectionId)
-    .order("order_no");
-  return (data ?? []).map((r: { name: string }) => r.name);
+  const rows = await sql`
+    SELECT name FROM period_activities
+    WHERE period_id = ${periodId} AND section_id = ${sectionId}
+    ORDER BY order_no
+  `;
+  return rows.map((r) => r.name as string);
 }

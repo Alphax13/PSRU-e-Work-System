@@ -1,4 +1,4 @@
-import { createAdminClient } from "@/lib/supabaseAdmin";
+import { sql } from "@/lib/db";
 import SectionsManager from "./SectionsManager";
 import type { SectionRule, PeriodActivity } from "@/lib/types";
 
@@ -8,37 +8,47 @@ export default async function SectionsPage({
   searchParams: Promise<{ period?: string }>;
 }) {
   const { period: periodParam } = await searchParams;
-  const supabase = createAdminClient();
 
-  const [{ data: sections }, { data: periods }] = await Promise.all([
-    supabase.from("sections").select("*, section_rules(*)").order("order_no"),
-    supabase.from("evaluation_periods").select("id,name,status").order("created_at", { ascending: false }),
+  const [sectionRows, periodRows] = await Promise.all([
+    sql`
+      SELECT s.id, s.name, s.max_score, s.order_no,
+             COALESCE(
+               json_agg(json_build_object('id', sr.id, 'section_id', sr.section_id, 'condition', sr.condition, 'score', sr.score) ORDER BY sr.score DESC)
+               FILTER (WHERE sr.id IS NOT NULL), '[]'::json
+             ) AS section_rules
+      FROM sections s
+      LEFT JOIN section_rules sr ON sr.section_id = s.id
+      GROUP BY s.id ORDER BY s.order_no
+    `,
+    sql`SELECT id, name, status FROM evaluation_periods ORDER BY created_at DESC`,
   ]);
 
+  const sections = sectionRows.map((s) => ({
+    id: s.id as string,
+    name: s.name as string,
+    max_score: Number(s.max_score),
+    order_no: Number(s.order_no),
+    rules: (s.section_rules as SectionRule[]) ?? [],
+  }));
+
+  const periods = periodRows as { id: string; name: string; status: string }[];
+
   const activePeriod =
-    (periods ?? []).find((p) => p.id === periodParam) ??
-    (periods ?? []).find((p) => p.status === "active") ??
-    (periods ?? [])[0] ??
+    periods.find((p) => p.id === periodParam) ??
+    periods.find((p) => p.status === "active") ??
+    periods[0] ??
     null;
 
   let activitiesBySectionId: Record<string, PeriodActivity[]> = {};
   if (activePeriod) {
-    const { data: acts } = await supabase
-      .from("period_activities")
-      .select("*")
-      .eq("period_id", activePeriod.id)
-      .order("order_no");
-    for (const act of acts ?? []) {
-      const sid = (act as PeriodActivity).section_id;
-      if (!activitiesBySectionId[sid]) activitiesBySectionId[sid] = [];
-      activitiesBySectionId[sid].push(act as PeriodActivity);
+    const acts = (await sql`
+      SELECT * FROM period_activities WHERE period_id = ${activePeriod.id} ORDER BY order_no
+    `) as PeriodActivity[];
+    for (const act of acts) {
+      if (!activitiesBySectionId[act.section_id]) activitiesBySectionId[act.section_id] = [];
+      activitiesBySectionId[act.section_id].push(act);
     }
   }
-
-  const mapped = (sections ?? []).map((s: {
-    id: string; name: string; max_score: number; order_no: number;
-    section_rules: SectionRule[];
-  }) => ({ ...s, rules: s.section_rules ?? [] }));
 
   return (
     <div className="space-y-6">
@@ -47,8 +57,8 @@ export default async function SectionsPage({
         <p className="mt-0.5 text-sm text-gray-500">แก้ไขชื่อ คะแนน เกณฑ์คำนิยาม และรายการตัวเลือก/กิจกรรมของแต่ละหัวข้อ</p>
       </div>
       <SectionsManager
-        sections={mapped}
-        periods={(periods ?? []).map((p) => ({ id: p.id, name: p.name, status: p.status }))}
+        sections={sections}
+        periods={periods}
         activePeriodId={activePeriod?.id ?? null}
         initialActivities={activitiesBySectionId}
       />

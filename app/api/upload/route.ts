@@ -1,14 +1,13 @@
 import { put } from "@vercel/blob";
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabaseServer";
+import { auth } from "@/auth";
 
 export async function POST(req: Request) {
-  // Require authenticated user
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) {
+  const session = await auth();
+  if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  const user = session.user;
 
   const formData = await req.formData();
   const file = formData.get("file") as File | null;

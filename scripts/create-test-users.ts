@@ -1,9 +1,8 @@
 /**
- * สร้าง test users ผ่าน Supabase Admin API
+ * สร้าง test users ใน Neon PostgreSQL
  * รัน: npx tsx scripts/create-test-users.ts
  *
- * ต้องการ SUPABASE_SERVICE_ROLE_KEY ใน .env.local
- * (Dashboard → Project Settings → API → service_role key)
+ * ต้องการ DATABASE_URL ใน .env.local
  */
 
 import { readFileSync } from "fs";
@@ -22,46 +21,35 @@ for (const line of envLines) {
   if (!process.env[key]) process.env[key] = value;
 }
 
-import { createClient } from "@supabase/supabase-js";
+import { neon } from "@neondatabase/serverless";
+import bcrypt from "bcryptjs";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-
-if (!supabaseUrl || !serviceRoleKey) {
-  console.error("กรุณาตั้งค่า NEXT_PUBLIC_SUPABASE_URL และ SUPABASE_SERVICE_ROLE_KEY ใน .env.local");
+const databaseUrl = process.env.DATABASE_URL!;
+if (!databaseUrl) {
+  console.error("กรุณาตั้งค่า DATABASE_URL ใน .env.local");
   process.exit(1);
 }
 
-const adminClient = createClient(supabaseUrl, serviceRoleKey, {
-  auth: { autoRefreshToken: false, persistSession: false },
-});
+const sql = neon(databaseUrl);
 
 const TEST_USERS = [
-  {
-    email: "admin@test.com",
-    password: "Admin1234!",
-    user_metadata: { name: "ผู้ดูแลระบบ", role: "admin", department: "IT" },
-  },
-  {
-    email: "staff@test.com",
-    password: "Staff1234!",
-    user_metadata: { name: "พนักงานทดสอบ", role: "staff", department: "การเงิน" },
-  },
+  { email: "admin@test.com", password: "Admin1234!", name: "ผู้ดูแลระบบ", role: "admin", department: "IT" },
+  { email: "staff@test.com", password: "Staff1234!", name: "พนักงานทดสอบ", role: "staff", department: "การเงิน" },
 ];
 
 async function main() {
   for (const u of TEST_USERS) {
-    const { data, error } = await adminClient.auth.admin.createUser({
-      email: u.email,
-      password: u.password,
-      user_metadata: u.user_metadata,
-      email_confirm: true, // ข้ามขั้นตอน confirm email
-    });
-
-    if (error) {
-      console.error(`❌ ${u.email}:`, error.message);
-    } else {
-      console.log(`✅ สร้างสำเร็จ: ${u.email} (id: ${data.user.id})`);
+    const passwordHash = await bcrypt.hash(u.password, 12);
+    try {
+      const rows = await sql`
+        INSERT INTO users (name, email, password_hash, role, department)
+        VALUES (${u.name}, ${u.email}, ${passwordHash}, ${u.role}, ${u.department})
+        ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash
+        RETURNING id
+      `;
+      console.log(`✅ สร้างสำเร็จ: ${u.email} (id: ${rows[0].id})`);
+    } catch (error) {
+      console.error(`❌ ${u.email}:`, error);
     }
   }
 }

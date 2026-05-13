@@ -7,7 +7,7 @@ import type { Section, SectionRule } from "@/lib/types";
 import DynamicTable from "@/components/DynamicTable";
 import { calculateScore, calculateTotalScore } from "@/lib/scoring";
 import type { EntryRow } from "@/lib/schemas";
-import { createClient } from "@/lib/supabaseClient";
+
 import { useRouter } from "next/navigation";
 import { useState, useRef, useCallback } from "react";
 import ConfirmModal from "@/components/ConfirmModal";
@@ -480,7 +480,6 @@ export default function EvaluateForm({ sections, periodId, userId, periodName, i
     if (autoSaving.current) return;
     autoSaving.current = true;
     const values = methods.getValues();
-    const supabase = createClient();
     const total_score = calculateTotalScore(
       sections.map((section, idx) => ({
         rules: section.rules,
@@ -491,26 +490,18 @@ export default function EvaluateForm({ sections, periodId, userId, periodName, i
         maxScore: section.max_score,
       }))
     );
-    const { data: evaluation } = await supabase
-      .from("evaluations")
-      .upsert(
-        { user_id: userId, period_id: periodId, status: "draft", total_score },
-        { onConflict: "user_id,period_id" }
-      )
-      .select("id")
-      .single();
-    if (evaluation) {
-      await supabase.from("entries").delete().eq("evaluation_id", evaluation.id);
-      const entries = values.sections
-        .filter((s) => s.rows.length > 0)
-        .map((s) => ({
-          evaluation_id: evaluation.id,
-          section_id: s.section_id,
-          data: { rows: s.rows },
-        }));
-      if (entries.length > 0) {
-        await supabase.from("entries").insert(entries);
-      }
+    const res = await fetch("/api/evaluate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId,
+        periodId,
+        status: "draft",
+        total_score,
+        sections: values.sections,
+      }),
+    });
+    if (res.ok) {
       setCurrentStatus((prev) => prev === "submitted" ? prev : "draft");
     }
     autoSaving.current = false;
@@ -539,7 +530,6 @@ export default function EvaluateForm({ sections, periodId, userId, periodName, i
     const values = methods.getValues();
     setSubmitting(true);
     setSubmitError(null);
-    const supabase = createClient();
 
     const total_score = calculateTotalScore(
       sections.map((section, idx) => ({
@@ -552,38 +542,17 @@ export default function EvaluateForm({ sections, periodId, userId, periodName, i
       }))
     );
 
-    const { data: evaluation, error: evalError } = await supabase
-      .from("evaluations")
-      .upsert(
-        { user_id: userId, period_id: periodId, status, total_score },
-        { onConflict: "user_id,period_id" }
-      )
-      .select("id")
-      .single();
+    const res = await fetch("/api/evaluate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, periodId, status, total_score, sections: values.sections }),
+    });
 
-    if (evalError || !evaluation) {
-      setSubmitError("บันทึกไม่สำเร็จ: " + evalError?.message);
+    if (!res.ok) {
+      const json = await res.json().catch(() => ({}));
+      setSubmitError("บันทึกไม่สำเร็จ: " + (json.error ?? res.statusText));
       setSubmitting(false);
       return;
-    }
-
-    await supabase.from("entries").delete().eq("evaluation_id", evaluation.id);
-
-    const entries = values.sections
-      .filter((s) => s.rows.length > 0)
-      .map((s) => ({
-        evaluation_id: evaluation.id,
-        section_id: s.section_id,
-        data: { rows: s.rows },
-      }));
-
-    if (entries.length > 0) {
-      const { error: entryError } = await supabase.from("entries").insert(entries);
-      if (entryError) {
-        setSubmitError("บันทึก entries ไม่สำเร็จ: " + entryError.message);
-        setSubmitting(false);
-        return;
-      }
     }
 
     setSubmitting(false);

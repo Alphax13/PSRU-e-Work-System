@@ -1,5 +1,5 @@
 -- ============================================================
--- Annual Performance Evaluation System — Supabase Schema
+-- Annual Performance Evaluation System — Neon PostgreSQL Schema
 -- ============================================================
 
 -- Enable UUID extension
@@ -9,12 +9,14 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- 1. USERS
 -- ============================================================
 CREATE TABLE IF NOT EXISTS public.users (
-  id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  name        TEXT NOT NULL,
-  email       TEXT NOT NULL UNIQUE,
-  role        TEXT NOT NULL CHECK (role IN ('staff', 'admin')),
-  department  TEXT NOT NULL,
-  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name          TEXT NOT NULL,
+  email         TEXT NOT NULL UNIQUE,
+  password_hash TEXT NOT NULL DEFAULT '',
+  role          TEXT NOT NULL CHECK (role IN ('staff', 'admin')),
+  department    TEXT NOT NULL,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- ============================================================
@@ -59,6 +61,7 @@ CREATE TABLE IF NOT EXISTS public.evaluations (
   status      TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'submitted')),
   total_score NUMERIC(8, 2) NOT NULL DEFAULT 0,
   created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   UNIQUE (user_id, period_id)
 );
 

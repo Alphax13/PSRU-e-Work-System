@@ -1,17 +1,15 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { createClient } from "@/lib/supabaseClient";
 
 interface FileUploadProps {
-  bucket: string; // Supabase storage bucket name
+  bucket?: string; // kept for backward compatibility, not used
   folder?: string;
   onUpload: (url: string) => void;
   accept?: string;
 }
 
 export default function FileUpload({
-  bucket,
   folder = "uploads",
   onUpload,
   accept = "*/*",
@@ -25,7 +23,6 @@ export default function FileUpload({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // 10 MB limit
     if (file.size > 10 * 1024 * 1024) {
       setError("ไฟล์ต้องมีขนาดไม่เกิน 10 MB");
       return;
@@ -34,24 +31,23 @@ export default function FileUpload({
     setError(null);
     setUploading(true);
 
-    const supabase = createClient();
-    const ext = file.name.split(".").pop();
-    const path = `${folder}/${Date.now()}.${ext}`;
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("folder", folder);
 
-    const { error: uploadError } = await supabase.storage
-      .from(bucket)
-      .upload(path, file, { upsert: false });
+    const res = await fetch("/api/upload", { method: "POST", body: formData });
 
     setUploading(false);
 
-    if (uploadError) {
-      setError("อัปโหลดไม่สำเร็จ: " + uploadError.message);
+    if (!res.ok) {
+      const json = await res.json().catch(() => ({}));
+      setError("อัปโหลดไม่สำเร็จ: " + (json.error ?? res.statusText));
       return;
     }
 
-    const { data } = supabase.storage.from(bucket).getPublicUrl(path);
+    const json = await res.json();
     setFileName(file.name);
-    onUpload(data.publicUrl);
+    onUpload(json.url as string);
   }
 
   return (

@@ -1,22 +1,20 @@
 import { redirect } from "next/navigation";
 import { getUserProfile } from "@/lib/auth";
-import { createClient } from "@/lib/supabaseServer";
-import type { Evaluation, EvaluationPeriod } from "@/lib/types";
-
-type EvaluationWithPeriod = Evaluation & { evaluation_periods: EvaluationPeriod };
+import { sql } from "@/lib/db";
+import { fmtDate } from "@/lib/format";
 
 export default async function HistoryPage() {
   const profile = await getUserProfile();
   if (!profile) redirect("/login");
 
-  const supabase = await createClient();
-  const { data: evaluations } = await supabase
-    .from("evaluations")
-    .select("*, evaluation_periods(name, start_date, end_date)")
-    .eq("user_id", profile.id)
-    .order("created_at", { ascending: false });
-
-  const rows = (evaluations ?? []) as EvaluationWithPeriod[];
+  const evaluations = await sql`
+    SELECT e.id, e.status, e.total_score, e.created_at,
+           p.name AS period_name, p.start_date AS period_start, p.end_date AS period_end
+    FROM evaluations e
+    LEFT JOIN evaluation_periods p ON p.id = e.period_id
+    WHERE e.user_id = ${profile.id}
+    ORDER BY e.created_at DESC
+  `;
 
   const statusLabel: Record<string, string> = {
     draft: "ฉบับร่าง",
@@ -38,7 +36,7 @@ export default async function HistoryPage() {
       </div>
 
       <div className="rounded-2xl bg-white shadow-sm overflow-hidden">
-          {rows.length === 0 ? (
+        {evaluations.length === 0 ? (
             <div className="py-16 text-center text-gray-400">
               ยังไม่มีประวัติการประเมิน
             </div>
@@ -54,13 +52,13 @@ export default async function HistoryPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
-                {rows.map((ev) => (
-                  <tr key={ev.id} className="hover:bg-gray-50">
+                {evaluations.map((ev) => (
+                  <tr key={ev.id as string} className="hover:bg-gray-50">
                     <td className="px-4 py-3 font-medium text-gray-800">
-                      {ev.evaluation_periods?.name ?? "-"}
+                      {(ev.period_name as string) ?? "-"}
                     </td>
                     <td className="px-4 py-3 text-gray-500">
-                      {ev.evaluation_periods?.start_date} – {ev.evaluation_periods?.end_date}
+                      {fmtDate(ev.period_start as Date)} – {fmtDate(ev.period_end as Date)}
                     </td>
                     <td className="px-4 py-3 text-center font-semibold text-gray-800">
                       {Number(ev.total_score).toFixed(2)}
@@ -68,10 +66,10 @@ export default async function HistoryPage() {
                     <td className="px-4 py-3 text-center">
                       <span
                         className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                          statusColor[ev.status] ?? "bg-gray-100 text-gray-600"
+                          statusColor[ev.status as string] ?? "bg-gray-100 text-gray-600"
                         }`}
                       >
-                        {statusLabel[ev.status] ?? ev.status}
+                        {statusLabel[ev.status as string] ?? (ev.status as string)}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-center">
@@ -85,7 +83,7 @@ export default async function HistoryPage() {
                           </a>
                         )}
                         <a
-                          href={`/api/export-word/${ev.id}`}
+                          href={`/api/export-word/${ev.id as string}`}
                           className="rounded bg-blue-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-blue-700"
                           title="ดาวน์โหลดไฟล์ Word"
                         >

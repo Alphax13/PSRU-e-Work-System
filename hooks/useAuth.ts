@@ -1,60 +1,38 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { createClient } from "@/lib/supabaseClient";
+import { useSession } from "next-auth/react";
 import type { User as ProfileUser } from "@/lib/types";
-import type { User as AuthUser } from "@supabase/supabase-js";
 
 interface AuthState {
-  authUser: AuthUser | null;
+  authUser: { id: string; email?: string | null; name?: string | null } | null;
   profile: ProfileUser | null;
   loading: boolean;
 }
 
 export function useAuth(): AuthState {
-  const [state, setState] = useState<AuthState>({
-    authUser: null,
-    profile: null,
-    loading: true,
-  });
+  const { data: session, status } = useSession();
 
-  useEffect(() => {
-    const supabase = createClient();
+  if (status === "loading") {
+    return { authUser: null, profile: null, loading: true };
+  }
 
-    async function fetchProfile(userId: string): Promise<ProfileUser | null> {
-      const { data, error } = await supabase
-        .from("users")
-        .select("*")
-        .eq("id", userId)
-        .single();
-      if (error || !data) return null;
-      return data as ProfileUser;
-    }
+  if (!session?.user) {
+    return { authUser: null, profile: null, loading: false };
+  }
 
-    // Initial session
-    supabase.auth.getUser().then(async ({ data: { user } }) => {
-      if (user) {
-        const profile = await fetchProfile(user.id);
-        setState({ authUser: user, profile, loading: false });
-      } else {
-        setState({ authUser: null, profile: null, loading: false });
-      }
-    });
+  const u = session.user;
+  const profile: ProfileUser = {
+    id: u.id,
+    name: u.name ?? "",
+    email: u.email ?? "",
+    role: (u as { role: string }).role as "staff" | "admin",
+    department: (u as { department: string }).department,
+    created_at: "",
+  };
 
-    // Listen for auth changes (login / logout)
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (session?.user) {
-        const profile = await fetchProfile(session.user.id);
-        setState({ authUser: session.user, profile, loading: false });
-      } else {
-        setState({ authUser: null, profile: null, loading: false });
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  return state;
+  return {
+    authUser: { id: u.id, email: u.email, name: u.name },
+    profile,
+    loading: false,
+  };
 }

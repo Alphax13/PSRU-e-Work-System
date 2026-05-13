@@ -1,5 +1,5 @@
 "use server";
-import { createAdminClient } from "@/lib/supabaseAdmin";
+import { sql } from "@/lib/db";
 
 const DEFAULT_SECTION6_ACTIVITIES = [
   "กิจกรรมประชุมปิดภาคเรียน",
@@ -17,33 +17,24 @@ export async function createPeriodWithDefaults(
   startDate: string,
   endDate: string
 ): Promise<{ error: string | null }> {
-  const supabase = createAdminClient();
+  const periodRows = await sql`
+    INSERT INTO evaluation_periods (name, start_date, end_date, status)
+    VALUES (${name}, ${startDate}, ${endDate}, 'draft')
+    RETURNING id
+  `;
+  const period = periodRows[0];
+  if (!period) return { error: "สร้างรอบไม่สำเร็จ" };
 
-  // Create the period
-  const { data: period, error: periodErr } = await supabase
-    .from("evaluation_periods")
-    .insert({ name, start_date: startDate, end_date: endDate, status: "draft" })
-    .select("id")
-    .single();
-
-  if (periodErr || !period) return { error: periodErr?.message ?? "สร้างรอบไม่สำเร็จ" };
-
-  // Find section 6
-  const { data: sec6 } = await supabase
-    .from("sections")
-    .select("id")
-    .eq("order_no", 6)
-    .single();
-
+  const sec6Rows = await sql`SELECT id FROM sections WHERE order_no = 6 LIMIT 1`;
+  const sec6 = sec6Rows[0];
   if (sec6) {
-    await supabase.from("period_activities").insert(
-      DEFAULT_SECTION6_ACTIVITIES.map((actName, i) => ({
-        period_id: period.id,
-        section_id: sec6.id,
-        name: actName,
-        order_no: i,
-      }))
-    );
+    for (let i = 0; i < DEFAULT_SECTION6_ACTIVITIES.length; i++) {
+      await sql`
+        INSERT INTO period_activities (period_id, section_id, name, order_no)
+        VALUES (${period.id as string}, ${sec6.id as string}, ${DEFAULT_SECTION6_ACTIVITIES[i]}, ${i})
+        ON CONFLICT DO NOTHING
+      `;
+    }
   }
 
   return { error: null };

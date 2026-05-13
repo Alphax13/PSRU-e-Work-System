@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Kanit } from "next/font/google";
 import "./globals.css";
 import ThemeProvider from "@/components/ThemeProvider";
+import { SessionProvider } from "next-auth/react";
 
 const kanit = Kanit({
   subsets: ["thai", "latin"],
@@ -24,7 +25,9 @@ export default function RootLayout({
     <html lang="th" className={kanit.variable}>
       <body className={`${kanit.className} overflow-x-hidden bg-gray-50 text-gray-900 antialiased`}>
         <ThemeProvider>
-          {children}
+          <SessionProvider>
+            {children}
+          </SessionProvider>
         </ThemeProvider>
       </body>
     </html>

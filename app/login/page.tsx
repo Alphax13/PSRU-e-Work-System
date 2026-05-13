@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "@/lib/supabaseClient";
+import { signIn } from "next-auth/react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -9,26 +9,36 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function login(loginEmail: string, loginPassword: string) {
     setError(null);
     setLoading(true);
-
-    const supabase = createClient();
-    const { error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+    const result = await signIn("credentials", {
+      email: loginEmail,
+      password: loginPassword,
+      redirect: false,
     });
-
     setLoading(false);
-
-    if (authError) {
+    if (result?.error) {
       setError("อีเมลหรือรหัสผ่านไม่ถูกต้อง");
       return;
     }
-
-    // Hard redirect so the server receives the new session cookie
     window.location.href = "/dashboard";
+  }
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    await login(email, password);
+  }
+
+  async function fastLogin(preset: "admin" | "staff") {
+    const credentials = {
+      admin: { email: "admin@psru.ac.th", password: "Admin1234!" },
+      staff: { email: "staff1@psru.ac.th", password: "Staff1234!" },
+    };
+    const { email: e, password: p } = credentials[preset];
+    setEmail(e);
+    setPassword(p);
+    await login(e, p);
   }
 
   return (
@@ -94,6 +104,29 @@ export default function LoginPage() {
             {loading ? "กำลังเข้าสู่ระบบ…" : "เข้าสู่ระบบ"}
           </button>
         </form>
+
+        {/* Fast Login (dev only) */}
+        <div className="mt-5 border-t border-dashed border-gray-200 pt-4">
+          <p className="mb-2 text-center text-xs text-gray-400">เข้าสู่ระบบด่วน (ทดสอบ)</p>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              disabled={loading}
+              onClick={() => fastLogin("admin")}
+              className="flex-1 rounded-lg border border-purple-300 bg-purple-50 py-2 text-xs font-semibold text-purple-700 hover:bg-purple-100 disabled:opacity-60"
+            >
+              👑 Admin
+            </button>
+            <button
+              type="button"
+              disabled={loading}
+              onClick={() => fastLogin("staff")}
+              className="flex-1 rounded-lg border border-green-300 bg-green-50 py-2 text-xs font-semibold text-green-700 hover:bg-green-100 disabled:opacity-60"
+            >
+              👤 Staff
+            </button>
+          </div>
+        </div>
       </div>
     </main>
   );

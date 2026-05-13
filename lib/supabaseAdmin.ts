@@ -1,14 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
+// This file is intentionally left empty after migration to Neon + NextAuth.
+// Use lib/db.ts (sql tagged template) for all server-side database access.
+export {};
 
-/**
- * Service-role Supabase client — bypasses RLS.
- * Only use in server-side code (API routes, Server Components, Server Actions).
- * Never expose to the browser.
- */
-export function createAdminClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { auth: { autoRefreshToken: false, persistSession: false } }
-  );
-}

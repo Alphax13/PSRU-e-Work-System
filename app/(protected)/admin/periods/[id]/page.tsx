@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabaseServer";
+import { sql } from "@/lib/db";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import ActivitiesManager from "./ActivitiesManager";
@@ -10,27 +10,29 @@ export default async function PeriodActivitiesPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const supabase = await createClient();
 
-  const [{ data: period }, { data: sections }, { data: activities }] = await Promise.all([
-    supabase.from("evaluation_periods").select("id,name,status").eq("id", id).single(),
-    supabase.from("sections").select("id,name,order_no").order("order_no"),
-    supabase
-      .from("period_activities")
-      .select("*")
-      .eq("period_id", id)
-      .order("section_id")
-      .order("order_no"),
+  const [periodRows, sectionRows, activityRows] = await Promise.all([
+    sql`SELECT id, name, status FROM evaluation_periods WHERE id = ${id} LIMIT 1`,
+    sql`SELECT id, name, order_no FROM sections ORDER BY order_no`,
+    sql`
+      SELECT * FROM period_activities
+      WHERE period_id = ${id}
+      ORDER BY section_id, order_no
+    `,
   ]);
 
+  const period = periodRows[0];
   if (!period) notFound();
+
+  const sections = sectionRows as { id: string; name: string; order_no: number }[];
+  const activities = activityRows as PeriodActivity[];
 
   // Group activities by section_id
   const activitiesBySectionId: Record<string, PeriodActivity[]> = {};
-  for (const act of activities ?? []) {
-    const sid = (act as PeriodActivity).section_id;
+  for (const act of activities) {
+    const sid = act.section_id;
     if (!activitiesBySectionId[sid]) activitiesBySectionId[sid] = [];
-    activitiesBySectionId[sid].push(act as PeriodActivity);
+    activitiesBySectionId[sid].push(act);
   }
 
   return (
@@ -44,7 +46,7 @@ export default async function PeriodActivitiesPage({
         </Link>
         <span className="text-gray-400">/</span>
         <h2 className="text-xl font-bold text-gray-800">
-          กำหนดกิจกรรม — {period.name}
+          กำหนดกิจกรรม — {period.name as string}
         </h2>
       </div>
 

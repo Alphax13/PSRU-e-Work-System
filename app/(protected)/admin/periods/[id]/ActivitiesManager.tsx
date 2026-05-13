@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabaseClient";
 import type { PeriodActivity } from "@/lib/types";
 
 const DEFAULT_ACTIVITIES: Record<number, string[]> = {
@@ -32,27 +31,25 @@ function SectionActivitiesPanel({
   const [newName, setNewName] = useState("");
   const [adding, setAdding] = useState(false);
   const [error, setError] = useState("");
-  const supabase = createClient();
 
   async function addActivity() {
     const trimmed = newName.trim();
     if (!trimmed) { setError("กรุณากรอกชื่อกิจกรรม"); return; }
     setAdding(true);
-    const { error: err } = await supabase.from("period_activities").insert({
-      period_id: periodId,
-      section_id: section.id,
-      name: trimmed,
-      order_no: activities.length,
+    const res = await fetch("/api/admin/period-activities", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ period_id: periodId, section_id: section.id, name: trimmed, order_no: activities.length }),
     });
     setAdding(false);
-    if (err) { setError(err.message); return; }
+    if (!res.ok) { const j = await res.json().catch(() => ({})); setError(j.error ?? "เพิ่มไม่สำเร็จ"); return; }
     setNewName("");
     setError("");
     router.refresh();
   }
 
   async function deleteActivity(id: string) {
-    await supabase.from("period_activities").delete().eq("id", id);
+    await fetch(`/api/admin/period-activities/${id}`, { method: "DELETE" });
     router.refresh();
   }
 
@@ -60,13 +57,13 @@ function SectionActivitiesPanel({
     const defaults = DEFAULT_ACTIVITIES[section.order_no] ?? [];
     if (!defaults.length) return;
     if (!confirm(`นำเข้ากิจกรรมเริ่มต้น ${defaults.length} รายการ?`)) return;
-    const rows = defaults.map((name, i) => ({
-      period_id: periodId,
-      section_id: section.id,
-      name,
-      order_no: activities.length + i,
-    }));
-    await supabase.from("period_activities").insert(rows);
+    for (let i = 0; i < defaults.length; i++) {
+      await fetch("/api/admin/period-activities", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ period_id: periodId, section_id: section.id, name: defaults[i], order_no: activities.length + i }),
+      });
+    }
     router.refresh();
   }
 

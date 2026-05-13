@@ -1,38 +1,40 @@
 import { getUserProfile } from "@/lib/auth";
-import { createClient } from "@/lib/supabaseServer";
+import { sql } from "@/lib/db";
 
 export default async function DashboardPage() {
   const profile = await getUserProfile();
   const isAdmin = profile?.role === "admin";
 
-  const supabase = await createClient();
-  const { data: period } = await supabase
-    .from("evaluation_periods")
-    .select("name, start_date, end_date, status")
-    .eq("status", "active")
-    .maybeSingle();
+  const periodRows = await sql`
+    SELECT id, name, start_date, end_date, status
+    FROM evaluation_periods WHERE status = 'active' LIMIT 1
+  `;
+  const period = periodRows[0] ?? null;
 
   // Admin stats
   let stats = { users: 0, total: 0, submitted: 0 };
   if (isAdmin) {
-    const [{ count: u }, { count: t }, { count: s }] = await Promise.all([
-      supabase.from("users").select("*", { count: "exact", head: true }).eq("role", "staff"),
-      supabase.from("evaluations").select("*", { count: "exact", head: true }),
-      supabase.from("evaluations").select("*", { count: "exact", head: true }).eq("status", "submitted"),
+    const [uRows, tRows, sRows] = await Promise.all([
+      sql`SELECT COUNT(*) AS cnt FROM users WHERE role = 'staff'`,
+      sql`SELECT COUNT(*) AS cnt FROM evaluations`,
+      sql`SELECT COUNT(*) AS cnt FROM evaluations WHERE status = 'submitted'`,
     ]);
-    stats = { users: u ?? 0, total: t ?? 0, submitted: s ?? 0 };
+    stats = {
+      users: Number(uRows[0]?.cnt ?? 0),
+      total: Number(tRows[0]?.cnt ?? 0),
+      submitted: Number(sRows[0]?.cnt ?? 0),
+    };
   }
 
   // Staff: check if has existing evaluation this period
   let evalStatus: string | null = null;
-  if (!isAdmin && period) {
-    const { data: ev } = await supabase
-      .from("evaluations")
-      .select("status, total_score")
-      .eq("user_id", (await supabase.auth.getUser()).data.user?.id ?? "")
-      .eq("period_id", period ? (await supabase.from("evaluation_periods").select("id").eq("status", "active").maybeSingle()).data?.id ?? "" : "")
-      .maybeSingle();
-    evalStatus = ev?.status ?? null;
+  if (!isAdmin && period && profile?.id) {
+    const evRows = await sql`
+      SELECT status FROM evaluations
+      WHERE user_id = ${profile.id} AND period_id = ${period.id}
+      LIMIT 1
+    `;
+    evalStatus = (evRows[0]?.status as string) ?? null;
   }
 
   return (

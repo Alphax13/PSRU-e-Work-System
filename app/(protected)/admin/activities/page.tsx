@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabaseServer";
+import { sql } from "@/lib/db";
 import Link from "next/link";
 import ActivitiesManager from "./ActivitiesManager";
 import type { PeriodActivity } from "@/lib/types";
@@ -9,35 +9,35 @@ export default async function ActivitiesPage({
   searchParams: Promise<{ period?: string }>;
 }) {
   const { period: periodParam } = await searchParams;
-  const supabase = await createClient();
 
-  const [{ data: periods }, { data: sections }] = await Promise.all([
-    supabase
-      .from("evaluation_periods")
-      .select("id,name,status")
-      .order("created_at", { ascending: false }),
-    supabase.from("sections").select("id,name,order_no").order("order_no"),
+  const [periodsRows, sectionsRows] = await Promise.all([
+    sql`SELECT id, name, status FROM evaluation_periods ORDER BY created_at DESC`,
+    sql`SELECT id, name, order_no FROM sections ORDER BY order_no`,
   ]);
+
+  const periods = periodsRows as { id: string; name: string; status: string }[];
+  const sections = sectionsRows as { id: string; name: string; order_no: number }[];
 
   // Use selected period, or fall back to active, or first
   const activePeriod =
-    (periods ?? []).find((p) => p.id === periodParam) ??
-    (periods ?? []).find((p) => p.status === "active") ??
-    (periods ?? [])[0] ??
+    periods.find((p) => p.id === periodParam) ??
+    periods.find((p) => p.status === "active") ??
+    periods[0] ??
     null;
 
   let activitiesBySectionId: Record<string, PeriodActivity[]> = {};
   if (activePeriod) {
-    const { data: activities } = await supabase
-      .from("period_activities")
-      .select("*")
-      .eq("period_id", activePeriod.id)
-      .order("order_no");
+    const activities = (await sql`
+      SELECT id, period_id, section_id, name, order_no
+      FROM period_activities
+      WHERE period_id = ${activePeriod.id}
+      ORDER BY order_no
+    `) as PeriodActivity[];
 
-    for (const act of activities ?? []) {
-      const sid = (act as PeriodActivity).section_id;
+    for (const act of activities) {
+      const sid = act.section_id;
       if (!activitiesBySectionId[sid]) activitiesBySectionId[sid] = [];
-      activitiesBySectionId[sid].push(act as PeriodActivity);
+      activitiesBySectionId[sid].push(act);
     }
   }
 
@@ -51,14 +51,14 @@ export default async function ActivitiesPage({
           </p>
         </div>
         {/* Period switcher */}
-        {(periods ?? []).length > 0 && (
+        {periods.length > 0 && (
           <form method="GET">
             <select
               name="period"
               defaultValue={activePeriod?.id ?? ""}
               className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
             >
-              {(periods ?? []).map((p) => (
+              {periods.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.name} {p.status === "active" ? "✓" : ""}
                 </option>
@@ -88,7 +88,7 @@ export default async function ActivitiesPage({
           </div>
           <ActivitiesManager
             periodId={activePeriod.id}
-            sections={(sections ?? []).map((s) => ({
+            sections={sections.map((s) => ({
               id: s.id,
               name: s.name,
               order_no: s.order_no,

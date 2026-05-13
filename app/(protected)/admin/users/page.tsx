@@ -1,5 +1,6 @@
-import { createAdminClient } from "@/lib/supabaseAdmin";
+import { sql } from "@/lib/db";
 import { getAuthUser } from "@/lib/auth";
+import { fmtDate } from "@/lib/format";
 import UserForm from "./UserForm";
 import UserActions from "./UserActions";
 
@@ -10,13 +11,11 @@ const ROLE_COLOR: Record<string, string> = {
 };
 
 export default async function UsersPage() {
-  const adminClient = createAdminClient();
+  const users = await sql`
+    SELECT id, name, email, role, department, created_at
+    FROM users ORDER BY created_at DESC
+  `;
   const authUser = await getAuthUser();
-
-  const { data: users } = await adminClient
-    .from("users")
-    .select("id, name, email, role, department, created_at")
-    .order("created_at", { ascending: false });
 
   return (
     <div className="space-y-6">
@@ -37,7 +36,7 @@ export default async function UsersPage() {
             </tr>
           </thead>
           <tbody>
-            {(users ?? []).map((u) => (
+          {(users ?? []).map((u) => (
               <tr key={u.id} className="border-b last:border-0 hover:bg-gray-50">
                 <td className="px-4 py-3 font-medium text-gray-800">{u.name}</td>
                 <td className="px-4 py-3 text-gray-500">{u.email}</td>
@@ -48,10 +47,10 @@ export default async function UsersPage() {
                   </span>
                 </td>
                 <td className="px-4 py-3 text-gray-400 text-xs">
-                  {new Date(u.created_at).toLocaleDateString("th-TH")}
+                  {fmtDate(u.created_at as Date)}
                 </td>
                 <td className="px-4 py-3">
-                  <UserActions id={u.id} name={u.name} department={u.department} role={u.role} currentUserId={authUser?.id ?? ""} />
+                  <UserActions id={u.id as string} name={u.name as string} department={u.department as string} role={u.role as string} currentUserId={authUser?.id ?? ""} />
                 </td>
               </tr>
             ))}

@@ -59,7 +59,8 @@ function FileCell({ sectionIndex, rowIdx, colKey, periodId, sectionNo }: { secti
   const { control } = useFormContext<EvaluationForm>();
   const { field } = useController({
     control,
-    name: `sections.${sectionIndex}.rows.${rowIdx}.${colKey}` as Parameters<typeof useController>[0]["name"],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    name: `sections.${sectionIndex}.rows.${rowIdx}.${colKey}` as any,
   });
   return (
     <FileUploadCell

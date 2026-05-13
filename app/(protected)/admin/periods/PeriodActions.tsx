@@ -1,7 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { createClient } from "@/lib/supabaseClient";
 import ConfirmModal from "@/components/ConfirmModal";
 
 interface Props {
@@ -20,19 +19,18 @@ export default function PeriodActions({ id, currentStatus }: Props) {
 
   async function changeStatus(status: string) {
     setLoading(true);
-    const supabase = createClient();
-    if (status === "active") {
-      await supabase.from("evaluation_periods").update({ status: "closed" }).neq("id", id).eq("status", "active");
-    }
-    await supabase.from("evaluation_periods").update({ status }).eq("id", id);
+    await fetch(`/api/admin/periods/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    });
     setLoading(false);
     router.refresh();
   }
 
   async function deletePeriod() {
     setLoading(true);
-    const supabase = createClient();
-    await supabase.from("evaluation_periods").delete().eq("id", id);
+    await fetch(`/api/admin/periods/${id}`, { method: "DELETE" });
     setLoading(false);
     router.refresh();
   }

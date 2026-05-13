@@ -1,7 +1,6 @@
 ﻿"use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabaseClient";
 import { addPeriodActivity, deletePeriodActivity, updatePeriodActivity } from "./actions";
 import ConfirmModal from "@/components/ConfirmModal";
 import type { SectionRule, PeriodActivity } from "@/lib/types";
@@ -69,14 +68,18 @@ function SectionCard({ section, periodId, activities, onActivityAdded, onActivit
     const ms = parseFloat(maxScore);
     if (isNaN(ms) || ms < 0) { setError("คะแนนเต็มไม่ถูกต้อง"); return; }
     setSavingSec(true);
-    const { error: err } = await createClient().from("sections").update({ name: trimName, max_score: ms }).eq("id", section.id);
+    const res = await fetch(`/api/admin/sections/${section.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: trimName, max_score: ms }),
+    });
     setSavingSec(false);
-    if (err) { setError(err.message); return; }
+    if (!res.ok) { const j = await res.json().catch(() => ({})); setError(j.error ?? "บันทึกไม่สำเร็จ"); return; }
     setEditing(false); setError(""); router.refresh();
   }
 
   async function deleteRule(ruleId: string) {
-    await createClient().from("section_rules").delete().eq("id", ruleId);
+    await fetch(`/api/admin/section-rules/${ruleId}`, { method: "DELETE" });
     router.refresh();
   }
 
@@ -90,9 +93,13 @@ function SectionCard({ section, periodId, activities, onActivityAdded, onActivit
       condition = { count: { [condType]: val } };
     }
     setAddingRule(true);
-    const { error: err } = await createClient().from("section_rules").insert({ section_id: section.id, condition, score });
+    const res = await fetch("/api/admin/section-rules", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ section_id: section.id, condition, score }),
+    });
     setAddingRule(false);
-    if (err) { setError(err.message); return; }
+    if (!res.ok) { const j = await res.json().catch(() => ({})); setError(j.error ?? "เพิ่มไม่สำเร็จ"); return; }
     setCondType("gte"); setCondValue("1"); setRuleScore("0"); setError(""); router.refresh();
   }
 
@@ -338,13 +345,14 @@ export default function SectionsManager({ sections, periods, activePeriodId, ini
 
   async function handlePeriodChange(periodId: string) {
     setSelectedPeriodId(periodId);
-    const { data, error } = await createClient().from("period_activities").select("*").eq("period_id", periodId).order("order_no");
-    if (error || !data) return;
+    const res = await fetch(`/api/admin/period-activities?period_id=${periodId}`);
+    if (!res.ok) return;
+    const data = (await res.json()) as PeriodActivity[];
     const bySection: Record<string, PeriodActivity[]> = {};
     for (const act of data) {
-      const sid = (act as PeriodActivity).section_id;
+      const sid = act.section_id;
       if (!bySection[sid]) bySection[sid] = [];
-      bySection[sid].push(act as PeriodActivity);
+      bySection[sid].push(act);
     }
     setActivities(bySection);
   }

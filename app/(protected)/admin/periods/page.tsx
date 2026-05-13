@@ -1,4 +1,5 @@
-import { createClient } from "@/lib/supabaseServer";
+import { sql } from "@/lib/db";
+import { fmtDate } from "@/lib/format";
 import PeriodForm from "./PeriodForm";
 import PeriodActions from "./PeriodActions";
 
@@ -10,11 +11,7 @@ const STATUS_COLOR: Record<string, string> = {
 };
 
 export default async function PeriodsPage() {
-  const supabase = await createClient();
-  const { data: periods } = await supabase
-    .from("evaluation_periods")
-    .select("*")
-    .order("created_at", { ascending: false });
+  const periods = await sql`SELECT * FROM evaluation_periods ORDER BY created_at DESC`;
 
   return (
     <div className="space-y-6">
@@ -34,22 +31,22 @@ export default async function PeriodsPage() {
             </tr>
           </thead>
           <tbody>
-            {(periods ?? []).map((p) => (
-              <tr key={p.id} className="border-b last:border-0 hover:bg-gray-50">
-                <td className="px-4 py-3 font-medium text-gray-800">{p.name}</td>
-                <td className="px-4 py-3 text-gray-500">{p.start_date}</td>
-                <td className="px-4 py-3 text-gray-500">{p.end_date}</td>
+            {periods.map((p) => (
+              <tr key={p.id as string} className="border-b last:border-0 hover:bg-gray-50">
+                <td className="px-4 py-3 font-medium text-gray-800">{p.name as string}</td>
+                <td className="px-4 py-3 text-gray-500">{fmtDate(p.start_date as Date)}</td>
+                <td className="px-4 py-3 text-gray-500">{fmtDate(p.end_date as Date)}</td>
                 <td className="px-4 py-3">
-                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLOR[p.status] ?? ""}`}>
-                    {STATUS_LABEL[p.status] ?? p.status}
+                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLOR[p.status as string] ?? ""}`}>
+                    {STATUS_LABEL[p.status as string] ?? (p.status as string)}
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  <PeriodActions id={p.id} currentStatus={p.status} />
+                  <PeriodActions id={p.id as string} currentStatus={p.status as string} />
                 </td>
               </tr>
             ))}
-            {(periods ?? []).length === 0 && (
+            {periods.length === 0 && (
               <tr><td colSpan={5} className="px-4 py-6 text-center text-gray-400">ยังไม่มีรอบการประเมิน</td></tr>
             )}
           </tbody>

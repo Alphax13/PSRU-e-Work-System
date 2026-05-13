@@ -1,5 +1,6 @@
 ﻿import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabaseServer";
+import { auth } from "@/auth";
+import { sql } from "@/lib/db";
 import { calculateScore } from "@/lib/scoring";
 import type { SectionRule } from "@/lib/types";
 import type { EntryRow } from "@/lib/schemas";
@@ -962,43 +963,42 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  const supabase = await createClient();
+  const session = await auth();
+  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const currentUserId = session.user.id;
+  const currentRole = (session.user as { role: string }).role;
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-  const { data: profile } = await supabase
-    .from("users")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  const { data: ev } = await supabase
-    .from("evaluations")
-    .select(
-      "*, users(name, email, department), evaluation_periods(name, start_date, end_date)"
-    )
-    .eq("id", id)
-    .single();
-
+  const evRows = await sql`
+    SELECT e.*, u.name AS user_name, u.email AS user_email, u.department AS user_department,
+           p.name AS period_name, p.start_date AS period_start, p.end_date AS period_end
+    FROM evaluations e
+    LEFT JOIN users u ON u.id = e.user_id
+    LEFT JOIN evaluation_periods p ON p.id = e.period_id
+    WHERE e.id = ${id}
+    LIMIT 1
+  `;
+  const ev = evRows[0];
   if (!ev) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  if (profile?.role !== "admin" && ev.user_id !== user.id)
+  if (currentRole !== "admin" && (ev.user_id as string) !== currentUserId)
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-  const { data: entries } = await supabase
-    .from("entries")
-    .select("*, sections(id, name, order_no, max_score, section_rules(*))")
-    .eq("evaluation_id", id)
-    .order("sections(order_no)");
+  const entries = await sql`
+    SELECT en.*, s.id AS section_id_col, s.name AS section_name, s.order_no AS section_order,
+           s.max_score AS section_max_score,
+           COALESCE(
+             json_agg(json_build_object('id', sr.id, 'section_id', sr.section_id, 'condition', sr.condition, 'score', sr.score) ORDER BY sr.score DESC)
+             FILTER (WHERE sr.id IS NOT NULL), '[]'::json
+           ) AS section_rules
+    FROM entries en
+    LEFT JOIN sections s ON s.id = en.section_id
+    LEFT JOIN section_rules sr ON sr.section_id = s.id
+    WHERE en.evaluation_id = ${id}
+    GROUP BY en.id, s.id
+    ORDER BY s.order_no
+  `;
 
-  const u      = ev.users as { name: string; email: string; department: string };
-  const period = ev.evaluation_periods as {
-    name: string;
-    start_date: string;
-    end_date: string;
-  };
+  const u = { name: ev.user_name as string, email: ev.user_email as string, department: ev.user_department as string };
+  const period = { name: ev.period_name as string, start_date: ev.period_start as string, end_date: ev.period_end as string };
 
   // ── Section data map ──
   type SecData = {
@@ -1006,17 +1006,17 @@ export async function GET(
     score: number; rows: EntryRow[]; valid: EntryRow[];
   };
   const secMap = new Map<number, SecData>();
-  for (const entry of entries ?? []) {
-    const sec = entry.sections as {
-      id: string; name: string; order_no: number;
-      max_score: number; section_rules: SectionRule[];
-    };
+  for (const entry of entries) {
+    const secOrderNo = Number(entry.section_order);
+    const secMaxScore = Number(entry.section_max_score);
+    const secName = entry.section_name as string;
+    const secRules = (entry.section_rules as SectionRule[]) ?? [];
     const rows: EntryRow[] = ((entry.data as { rows?: EntryRow[] })?.rows ?? []);
-    const valid = filterValidRows(rows, sec.order_no);
-    const score = calculateScore(sec.section_rules ?? [], valid, sec.max_score);
-    secMap.set(sec.order_no, {
-      name: sec.name, order_no: sec.order_no,
-      max_score: sec.max_score, score, rows, valid,
+    const valid = filterValidRows(rows, secOrderNo);
+    const score = calculateScore(secRules, valid, secMaxScore);
+    secMap.set(secOrderNo, {
+      name: secName, order_no: secOrderNo,
+      max_score: secMaxScore, score, rows, valid,
     });
   }
 

@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabaseClient";
 
 interface Props {
   evalId: string;
@@ -17,27 +16,12 @@ export default function EvalActions({ evalId, status, currentSection8Score }: Pr
 
   async function approve() {
     setLoading(true);
-    const supabase = createClient();
-    // Update section 8 score if provided
-    if (section8) {
-      const s8Score = parseFloat(section8);
-      if (s8Score >= 0 && s8Score <= 1) {
-        // Fetch current evaluation total score and adjust
-        const { data: evalData } = await supabase.from("evaluations").select("total_score").eq("id", evalId).single();
-        const { data: sections } = await supabase.from("sections").select("id").eq("order_no", 8).single();
-        if (evalData && sections) {
-          const { data: entries } = await supabase.from("entries").select("id").eq("evaluation_id", evalId).eq("section_id", sections.id);
-          // Update or insert section 8 entry with score override
-          if (entries && entries.length > 0) {
-            await supabase.from("entries").update({ data: { admin_score: s8Score } }).eq("evaluation_id", evalId).eq("section_id", sections.id);
-          }
-          await supabase.from("evaluations").update({
-            total_score: (evalData.total_score ?? 0) + s8Score,
-          }).eq("id", evalId);
-        }
-      }
-    }
-    await supabase.from("evaluations").update({ status: "submitted" }).eq("id", evalId);
+    const s8Score = section8 ? parseFloat(section8) : undefined;
+    await fetch(`/api/admin/evaluations/${evalId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "submitted", section8Score: s8Score }),
+    });
     setLoading(false);
     router.refresh();
   }
@@ -45,8 +29,11 @@ export default function EvalActions({ evalId, status, currentSection8Score }: Pr
   async function reopen() {
     if (!confirm("เปิดแบบประเมินนี้กลับเป็น draft เพื่อให้บุคลากรแก้ไข?")) return;
     setLoading(true);
-    const supabase = createClient();
-    await supabase.from("evaluations").update({ status: "draft" }).eq("id", evalId);
+    await fetch(`/api/admin/evaluations/${evalId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "draft" }),
+    });
     setLoading(false);
     router.refresh();
   }

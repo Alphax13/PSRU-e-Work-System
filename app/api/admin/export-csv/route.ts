@@ -1,26 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabaseServer";
+import { auth } from "@/auth";
+import { sql } from "@/lib/db";
 
 // GET /api/admin/export-csv?period=<uuid>
 export async function GET(req: NextRequest) {
-  const supabase = await createClient();
-
-  // Auth check
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const { data: profile } = await supabase.from("users").select("role").eq("id", user.id).single();
-  if (profile?.role !== "admin") return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  const session = await auth();
+  if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  if ((session.user as { role: string }).role !== "admin")
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const periodId = req.nextUrl.searchParams.get("period");
 
-  let query = supabase
-    .from("evaluations")
-    .select("id, status, total_score, created_at, users(name, email, department), evaluation_periods(name)")
-    .order("created_at", { ascending: false });
-
-  if (periodId) query = query.eq("period_id", periodId);
-
-  const { data: evals } = await query;
+  const evals = periodId
+    ? await sql`
+        SELECT e.id, e.status, e.total_score, e.created_at,
+               u.name AS user_name, u.email AS user_email, u.department AS user_department,
+               p.name AS period_name
+        FROM evaluations e
+        LEFT JOIN users u ON u.id = e.user_id
+        LEFT JOIN evaluation_periods p ON p.id = e.period_id
+        WHERE e.period_id = ${periodId}
+        ORDER BY e.created_at DESC
+      `
+    : await sql`
+        SELECT e.id, e.status, e.total_score, e.created_at,
+               u.name AS user_name, u.email AS user_email, u.department AS user_department,
+               p.name AS period_name
+        FROM evaluations e
+        LEFT JOIN users u ON u.id = e.user_id
+        LEFT JOIN evaluation_periods p ON p.id = e.period_id
+        ORDER BY e.created_at DESC
+      `;
 
   if (!evals || evals.length === 0) {
     return new NextResponse("ไม่มีข้อมูล", { status: 200, headers: { "Content-Type": "text/plain; charset=utf-8" } });
@@ -30,21 +40,17 @@ export async function GET(req: NextRequest) {
 
   const header = ["ชื่อ-นามสกุล", "อีเมล", "สังกัด", "รอบประเมิน", "คะแนนรวม", "สถานะ", "วันที่สร้าง"].join(",");
 
-  const rows = evals.map((ev) => {
-    const u = ev.users as { name: string; email: string; department: string } | null;
-    const p = ev.evaluation_periods as { name: string } | null;
-    return [
-      `"${u?.name ?? ""}"`,
-      `"${u?.email ?? ""}"`,
-      `"${u?.department ?? ""}"`,
-      `"${p?.name ?? ""}"`,
-      ev.total_score,
-      STATUS_LABEL[ev.status] ?? ev.status,
-      new Date(ev.created_at).toLocaleDateString("th-TH"),
-    ].join(",");
-  });
+  const rows = evals.map((ev) => [
+    `"${(ev.user_name as string) ?? ""}"`,
+    `"${(ev.user_email as string) ?? ""}"`,
+    `"${(ev.user_department as string) ?? ""}"`,
+    `"${(ev.period_name as string) ?? ""}"`,
+    ev.total_score,
+    STATUS_LABEL[ev.status as string] ?? ev.status,
+    new Date(ev.created_at as string).toLocaleDateString("th-TH"),
+  ].join(","));
 
-  const csv = "\uFEFF" + [header, ...rows].join("\r\n"); // BOM for Excel Thai charset
+  const csv = "\uFEFF" + [header, ...rows].join("\r\n");
 
   const filename = `evaluations_${new Date().toISOString().slice(0, 10)}.csv`;
 
