@@ -55,7 +55,7 @@ export default async function AdminDashboardPage() {
           </thead>
           <tbody>
             {periods.map((p, idx) => (
-              <tr key={p.id} className={idx % 2 === 0 ? "bg-white" : "bg-[#FFFDE7]/40"}>
+              <tr key={p.id as string} className={idx % 2 === 0 ? "bg-white" : "bg-[#FFFDE7]/40"}>
                 <td className="px-5 py-2.5 pr-4 font-medium text-[#1A1A2E]">{p.name}</td>
                 <td className="px-5 py-2.5 pr-4 text-gray-500">{fmtDate(p.start_date as Date)}</td>
                 <td className="px-5 py-2.5 pr-4 text-gray-500">{fmtDate(p.end_date as Date)}</td>
