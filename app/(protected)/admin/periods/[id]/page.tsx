@@ -24,8 +24,8 @@ export default async function PeriodActivitiesPage({
   const period = periodRows[0];
   if (!period) notFound();
 
-  const sections = sectionRows as { id: string; name: string; order_no: number }[];
-  const activities = activityRows as PeriodActivity[];
+  const sections = sectionRows as unknown as { id: string; name: string; order_no: number }[];
+  const activities = activityRows as unknown as PeriodActivity[];
 
   // Group activities by section_id
   const activitiesBySectionId: Record<string, PeriodActivity[]> = {};
