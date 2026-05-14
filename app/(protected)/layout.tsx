@@ -14,7 +14,7 @@ export default async function ProtectedLayout({ children }: { children: React.Re
   const period = periods[0] ?? null;
 
   return (
-    <SidebarLayout profile={profile} periodName={period?.name ?? null}>
+    <SidebarLayout profile={profile} periodName={(period?.name as string) ?? null}>
       {children}
     </SidebarLayout>
   );

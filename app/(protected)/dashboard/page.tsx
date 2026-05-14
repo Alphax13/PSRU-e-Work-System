@@ -57,7 +57,7 @@ export default async function DashboardPage() {
             <div className="mt-4 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm">
               <span className="h-2 w-2 rounded-full bg-[#F5C400] animate-pulse" />
               <span className="font-medium text-white/70">รอบการประเมิน:</span>
-              <span className="text-white">{period.name}</span>
+              <span className="text-white">{period.name as string}</span>
             </div>
           )}
         </div>

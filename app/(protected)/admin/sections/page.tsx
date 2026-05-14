@@ -43,7 +43,7 @@ export default async function SectionsPage({
   if (activePeriod) {
     const acts = (await sql`
       SELECT * FROM period_activities WHERE period_id = ${activePeriod.id} ORDER BY order_no
-    `) as PeriodActivity[];
+    `) as unknown as PeriodActivity[];
     for (const act of acts) {
       if (!activitiesBySectionId[act.section_id]) activitiesBySectionId[act.section_id] = [];
       activitiesBySectionId[act.section_id].push(act);

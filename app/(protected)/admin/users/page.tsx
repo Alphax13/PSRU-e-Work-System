@@ -37,13 +37,13 @@ export default async function UsersPage() {
           </thead>
           <tbody>
           {(users ?? []).map((u) => (
-              <tr key={u.id} className="border-b last:border-0 hover:bg-gray-50">
-                <td className="px-4 py-3 font-medium text-gray-800">{u.name}</td>
-                <td className="px-4 py-3 text-gray-500">{u.email}</td>
-                <td className="px-4 py-3 text-gray-500">{u.department}</td>
+              <tr key={u.id as string} className="border-b last:border-0 hover:bg-gray-50">
+                <td className="px-4 py-3 font-medium text-gray-800">{u.name as string}</td>
+                <td className="px-4 py-3 text-gray-500">{u.email as string}</td>
+                <td className="px-4 py-3 text-gray-500">{u.department as string}</td>
                 <td className="px-4 py-3">
-                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${ROLE_COLOR[u.role] ?? ""}`}>
-                    {ROLE_LABEL[u.role] ?? u.role}
+                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${ROLE_COLOR[u.role as string] ?? ""}`}>
+                    {ROLE_LABEL[u.role as string] ?? u.role as string}
                   </span>
                 </td>
                 <td className="px-4 py-3 text-gray-400 text-xs">
