@@ -32,7 +32,7 @@ export default async function ActivitiesPage({
       FROM period_activities
       WHERE period_id = ${activePeriod.id}
       ORDER BY order_no
-    `) as PeriodActivity[];
+    `) as unknown as PeriodActivity[];
 
     for (const act of activities) {
       const sid = act.section_id;
