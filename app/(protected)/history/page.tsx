@@ -85,6 +85,14 @@ export default async function HistoryPage() {
                               แก้ไข
                             </a>
                           )}
+                          {ev.status === "submitted" && (
+                            <a
+                              href={`/history/${ev.id as string}`}
+                              className="rounded-lg border border-[#1A1A2E] px-2.5 py-1 text-xs font-medium text-[#1A1A2E] hover:bg-[#1A1A2E] hover:text-[#F5C400]"
+                            >
+                              ดูรายละเอียด
+                            </a>
+                          )}
                           {ev.status === "submitted" && ev.period_status !== "closed" && (
                             <RecallButton evaluationId={ev.id as string} />
                           )}

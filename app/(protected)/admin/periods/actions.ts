@@ -1,5 +1,7 @@
 "use server";
 import { sql } from "@/lib/db";
+import { logAudit } from "@/lib/audit";
+import { getAuthUser } from "@/lib/auth";
 
 const DEFAULT_SECTION6_ACTIVITIES = [
   "กิจกรรมประชุมปิดภาคเรียน",
@@ -17,6 +19,18 @@ export async function createPeriodWithDefaults(
   startDate: string,
   endDate: string
 ): Promise<{ error: string | null }> {
+  // ตรวจสอบ date range ซ้อนทับกับรอบที่ยังไม่ปิด
+  const overlap = await sql`
+    SELECT name FROM evaluation_periods
+    WHERE status != 'closed'
+      AND start_date <= ${endDate}::date
+      AND end_date   >= ${startDate}::date
+    LIMIT 1
+  `;
+  if (overlap.length > 0) {
+    return { error: `ช่วงเวลาซ้อนทับกับรอบ "${overlap[0].name}" ที่ยังเปิดอยู่ กรุณาปิดรอบเดิมก่อนหรือเลือกช่วงเวลาอื่น` };
+  }
+
   const periodRows = await sql`
     INSERT INTO evaluation_periods (name, start_date, end_date, status)
     VALUES (${name}, ${startDate}, ${endDate}, 'draft')
@@ -35,6 +49,16 @@ export async function createPeriodWithDefaults(
         ON CONFLICT DO NOTHING
       `;
     }
+  }
+
+  const actor = await getAuthUser();
+  if (actor) {
+    await logAudit({
+      actorName:  actor.name  ?? "",
+      actorEmail: actor.email ?? "",
+      action: "สร้างรอบการประเมินใหม่",
+      target: name,
+    });
   }
 
   return { error: null };

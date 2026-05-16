@@ -81,6 +81,17 @@ CREATE INDEX IF NOT EXISTS idx_evaluations_period_id ON evaluations(period_id);
 CREATE INDEX IF NOT EXISTS idx_entries_evaluation_id ON entries(evaluation_id);
 CREATE INDEX IF NOT EXISTS idx_entries_section_id    ON entries(section_id);
 CREATE INDEX IF NOT EXISTS idx_section_rules_section ON section_rules(section_id);
+
+CREATE TABLE IF NOT EXISTS audit_logs (
+  id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  actor_name  TEXT NOT NULL DEFAULT '',
+  actor_email TEXT NOT NULL DEFAULT '',
+  action      TEXT NOT NULL,
+  target      TEXT NOT NULL DEFAULT '',
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_audit_logs_created_at ON audit_logs(created_at DESC);
 `;
 
 async function main() {

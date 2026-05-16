@@ -28,13 +28,29 @@ export default async function DashboardPage() {
 
   // Staff: check if has existing evaluation this period
   let evalStatus: string | null = null;
-  if (!isAdmin && period && profile?.id) {
-    const evRows = await sql`
-      SELECT status FROM evaluations
-      WHERE user_id = ${profile.id} AND period_id = ${period.id}
-      LIMIT 1
-    `;
+  let staffStats = { totalSubmitted: 0, avgScore: 0, lastScore: 0 };
+  if (!isAdmin && profile?.id) {
+    const [evRows, statsRows] = await Promise.all([
+      period ? sql`
+        SELECT status FROM evaluations
+        WHERE user_id = ${profile.id} AND period_id = ${period.id}
+        LIMIT 1
+      ` : Promise.resolve([]),
+      sql`
+        SELECT COUNT(*) FILTER (WHERE status = 'submitted') AS total_submitted,
+               COALESCE(AVG(total_score) FILTER (WHERE status = 'submitted'), 0)::numeric(8,2) AS avg_score,
+               COALESCE((SELECT total_score FROM evaluations
+                         WHERE user_id = ${profile.id} AND status = 'submitted'
+                         ORDER BY created_at DESC LIMIT 1), 0) AS last_score
+        FROM evaluations WHERE user_id = ${profile.id}
+      `,
+    ]);
     evalStatus = (evRows[0]?.status as string) ?? null;
+    staffStats = {
+      totalSubmitted: Number(statsRows[0]?.total_submitted ?? 0),
+      avgScore:       Number(statsRows[0]?.avg_score ?? 0),
+      lastScore:      Number(statsRows[0]?.last_score ?? 0),
+    };
   }
 
   return (
@@ -83,7 +99,7 @@ export default async function DashboardPage() {
             <div className="grid gap-4 sm:grid-cols-3">
               <MenuCard href="/evaluate" title="แบบบันทึกภาระงาน" desc="กรอกแบบประเมินผลการปฏิบัติงานของตัวเอง" icon="📋" highlight />
               <MenuCard href="/history" title="ประวัติการประเมิน" desc="ดูผลการประเมินย้อนหลัง" icon="📂" />
-              <MenuCard href="/profile" title="ข้อมูลส่วนตัว" desc="ชื่อ สังกัด อีเมล" icon="👤" />
+              <MenuCard href="/profile" title="ข้อมูลส่วนตัว" desc="ชื่อ ตำแหน่ง อีเมล" icon="👤" />
             </div>
           </div>
         </>
@@ -92,6 +108,38 @@ export default async function DashboardPage() {
       {/* ── Staff view ─────────────────────────────────────── */}
       {!isAdmin && (
         <div className="space-y-6">
+          {/* Countdown banner */}
+          {period && (
+            <CountdownBanner endDate={period.end_date as string} periodName={period.name as string} />
+          )}
+
+          {/* Personal stats */}
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div className="rounded-xl border border-[#E5E3DC] bg-white p-5 shadow-[0_1px_4px_rgba(26,26,46,.06)]">
+              <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">ส่งแล้วทั้งหมด</p>
+              <p className="mt-1.5 text-3xl font-bold text-[#1A1A2E]">{staffStats.totalSubmitted}</p>
+              <p className="mt-0.5 text-xs text-gray-400">รอบการประเมิน</p>
+            </div>
+            <div className="rounded-xl border border-[#E5E3DC] bg-white p-5 shadow-[0_1px_4px_rgba(26,26,46,.06)]">
+              <p className="text-xs font-medium text-gray-400 uppercase tracking-wide">คะแนนเฉลี่ย</p>
+              <p className="mt-1.5 text-3xl font-bold text-[#1A1A2E]">{staffStats.avgScore.toFixed(1)}</p>
+              <p className="mt-0.5 text-xs text-gray-400">เฉลี่ยทุกรอบ</p>
+            </div>
+            <div className="rounded-xl border border-[#F5C400]/40 bg-[#FFFDE7] p-5 shadow-[0_1px_4px_rgba(245,196,0,.1)]">
+              <p className="text-xs font-medium text-[#7a5c00]/70 uppercase tracking-wide">คะแนนล่าสุด</p>
+              <p className="mt-1.5 text-3xl font-bold text-[#1A1A2E]">{staffStats.lastScore.toFixed(1)}</p>
+              <div className="mt-2">
+                <div className="h-1.5 w-full rounded-full bg-[#F5C400]/20">
+                  <div
+                    className="h-1.5 rounded-full bg-[#F5C400] transition-all"
+                    style={{ width: `${Math.min(100, (staffStats.lastScore / 100) * 100)}%` }}
+                  />
+                </div>
+                <p className="mt-0.5 text-xs text-[#7a5c00]/60">จากคะแนนเต็ม 100</p>
+              </div>
+            </div>
+          </div>
+
           {/* Evaluation status notice */}
           {period && evalStatus && (
             <div className={`flex items-start gap-3 rounded-xl border px-4 py-3 text-sm ${
@@ -120,7 +168,7 @@ export default async function DashboardPage() {
 
           {/* Section groups */}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <MenuCard href="/profile" title="ข้อมูลส่วนตัว" desc="ชื่อ สังกัด อีเมล" icon="👤" />
+            <MenuCard href="/profile" title="ข้อมูลส่วนตัว" desc="ชื่อ ตำแหน่ง อีเมล" icon="👤" />
             <MenuCard href="/evaluate" title="แบบบันทึกภาระงาน" desc="กรอกแบบประเมินผลการปฏิบัติงาน" icon="📋" highlight />
             <MenuCard href="/history" title="ประวัติการประเมิน" desc="ดูผลการประเมินย้อนหลัง" icon="📂" />
           </div>
@@ -174,6 +222,36 @@ function StatCard({ label, value, icon, gold }: { label: string; value: number; 
         </div>
         {icon && <span className="text-2xl opacity-60">{icon}</span>}
       </div>
+    </div>
+  );
+}
+
+function CountdownBanner({ endDate, periodName }: { endDate: string; periodName: string }) {
+  const end = new Date(endDate);
+  end.setHours(23, 59, 59, 999);
+  const days = Math.max(0, Math.ceil((end.getTime() - Date.now()) / 86_400_000));
+
+  const { bg, border, text, ring, label } =
+    days === 0
+      ? { bg: "bg-red-50",    border: "border-red-200",   text: "text-red-700",   ring: "bg-red-500",    label: "หมดเขตวันนี้!" }
+      : days <= 3
+      ? { bg: "bg-red-50",    border: "border-red-200",   text: "text-red-700",   ring: "bg-red-500",    label: `เหลือ ${days} วัน` }
+      : days <= 7
+      ? { bg: "bg-orange-50", border: "border-orange-200",text: "text-orange-700",ring: "bg-orange-400", label: `เหลือ ${days} วัน` }
+      : days <= 14
+      ? { bg: "bg-[#FFFDE7]", border: "border-[#F5C400]/40", text: "text-[#7a5c00]", ring: "bg-[#F5C400]", label: `เหลือ ${days} วัน` }
+      : { bg: "bg-green-50",  border: "border-green-200", text: "text-green-700", ring: "bg-green-500",   label: `เหลือ ${days} วัน` };
+
+  return (
+    <div className={`flex items-center gap-3 rounded-xl border ${border} ${bg} px-4 py-3`}>
+      <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${ring} text-white text-sm font-bold`}>
+        {days === 0 ? "!" : days <= 7 ? "⚡" : "📅"}
+      </span>
+      <div className={`flex-1 ${text}`}>
+        <p className="text-xs font-semibold uppercase tracking-wide opacity-70">{periodName}</p>
+        <p className="text-sm font-bold">{label} — กรอกแบบประเมินให้เสร็จก่อนหมดเขต</p>
+      </div>
+      <span className={`text-2xl font-extrabold ${text}`}>{days}</span>
     </div>
   );
 }

@@ -35,3 +35,6 @@ export {
   Spinner,
 } from "./Feedback";
 export type { SkeletonProps, EmptyStateProps } from "./Feedback";
+
+// ── Toast Notification ──────────────────────────────────────────
+export { ToastProvider, useToast } from "./Toast";

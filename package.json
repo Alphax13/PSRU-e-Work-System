@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "db:schema": "tsx --env-file=.env scripts/apply-schema.ts",
-    "seed": "tsx --env-file=.env scripts/seed.ts"
+    "seed": "tsx --env-file=.env scripts/seed.ts",
+    "add-staff": "tsx --env-file=.env scripts/add-staff.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -24,6 +25,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.55.0",
+    "recharts": "^3.8.1",
     "ws": "^8.20.0",
     "zod": "^3.24.3"
   },

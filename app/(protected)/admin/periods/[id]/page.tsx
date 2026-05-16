@@ -12,7 +12,7 @@ export default async function PeriodActivitiesPage({
   const { id } = await params;
 
   const [periodRows, sectionRows, activityRows] = await Promise.all([
-    sql`SELECT id, name, status FROM evaluation_periods WHERE id = ${id} LIMIT 1`,
+    sql`SELECT id, name, status, start_date FROM evaluation_periods WHERE id = ${id} LIMIT 1`,
     sql`SELECT id, name, order_no FROM sections ORDER BY order_no`,
     sql`
       SELECT * FROM period_activities
@@ -52,6 +52,7 @@ export default async function PeriodActivitiesPage({
 
       <ActivitiesManager
         periodId={id}
+        periodStartDate={period.start_date as string}
         sections={(sections ?? []).map((s) => ({
           id: s.id,
           name: s.name,

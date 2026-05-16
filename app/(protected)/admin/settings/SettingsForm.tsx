@@ -40,7 +40,7 @@ export default function SettingsForm({ initialDeanName, initialDeanTitle }: Prop
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-semibold text-[#1A1A2E]">ตำแหน่ง / ต้นสังกัด</label>
+        <label className="mb-1 block text-sm font-semibold text-[#1A1A2E]">ตำแหน่ง / ต้นตำแหน่ง</label>
         <input
           name="dean_title"
           value={deanTitle}

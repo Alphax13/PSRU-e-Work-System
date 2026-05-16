@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
+import Image from "next/image";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -42,7 +43,7 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen bg-[#FAFAF7]">
+    <main className="flex min-h-screen bg-[#FAFAF7] dark:bg-[#0e0e1a]">
       {/* ── Left panel — dark charcoal with gold accents ── */}
       <div className="relative hidden w-[45%] flex-col justify-between overflow-hidden bg-[#1A1A2E] p-12 lg:flex">
         {/* Geometric gold accent blocks */}
@@ -51,12 +52,19 @@ export default function LoginPage() {
         <div className="pointer-events-none absolute left-1/2 top-1/2 h-1 w-48 -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-transparent via-[#F5C400]/20 to-transparent" />
         {/* Top logo mark */}
         <div>
-          <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-xl bg-[#F5C400] text-[#1A1A2E] text-xl font-bold shadow-[0_4px_16px_rgba(245,196,0,.35)]">
-            ว
-          </div>
-          <h1 className="font-display text-3xl font-bold text-white leading-tight">
-            ระบบประเมินผล<br />การปฏิบัติงาน
+          <Image
+            src="https://science.psru.ac.th/wp-content/uploads/2022/02/logo-sci-1024x1024.png"
+            alt="SCIPSRU Logo"
+            width={80}
+            height={80}
+            className="shrink-0 rounded-md object-contain"
+            />
+          <h1 className="text-3xl font-bold text-white leading-tight">
+            ระบบประเมินผลการปฏิบัติงาน
           </h1>
+          <h2 className="text-2xl font-bold text-white leading-tight">
+            Performance Evaluation System
+          </h2>
           <div className="mt-3 h-0.5 w-16 rounded bg-[#F5C400]" />
           <p className="mt-4 text-sm leading-relaxed text-white/50">
             คณะวิทยาศาสตร์และเทคโนโลยี<br />
@@ -70,21 +78,21 @@ export default function LoginPage() {
       </div>
 
       {/* ── Right panel — login form ── */}
-      <div className="flex flex-1 items-center justify-center px-6 py-12">
+      <div className="flex flex-1 items-center justify-center px-6 py-12 dark:bg-[#0e0e1a]">
         <div className="w-full max-w-sm">
           {/* Mobile logo */}
           <div className="mb-8 flex items-center gap-3 lg:hidden">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#1A1A2E] text-[#F5C400] font-bold text-sm">ว</div>
-            <span className="text-sm font-semibold text-[#1A1A2E]">PSRU e-Work System</span>
+            <span className="text-sm font-semibold text-[#1A1A2E]">Performance Evaluation System</span>
           </div>
 
-          <h2 className="text-2xl font-bold text-[#1A1A2E]">เข้าสู่ระบบ</h2>
-          <p className="mt-1 text-sm text-gray-500">ยินดีต้อนรับกลับมา</p>
+          <h2 className="text-2xl font-bold text-[#1A1A2E] dark:text-white">เข้าสู่ระบบ</h2>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">ยินดีต้อนรับกลับมา</p>
           <div className="mt-3 mb-7 h-0.5 w-10 rounded bg-[#F5C400]" />
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label htmlFor="email" className="mb-1.5 block text-sm font-semibold text-[#1A1A2E]">
+              <label htmlFor="email" className="mb-1.5 block text-sm font-semibold text-[#1A1A2E] dark:text-gray-200">
                 อีเมล
               </label>
               <input
@@ -94,13 +102,13 @@ export default function LoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-xl border border-[#E5E3DC] bg-white px-4 py-2.5 text-sm outline-none transition focus:border-[#F5C400] focus:ring-2 focus:ring-[#F5C400]/25"
+                className="w-full rounded-xl border border-[#E5E3DC] bg-white px-4 py-2.5 text-sm outline-none transition focus:border-[#F5C400] focus:ring-2 focus:ring-[#F5C400]/25 dark:border-[#2e2e4a] dark:bg-[#1A1A2E] dark:text-white dark:placeholder:text-gray-600"
                 placeholder="email@psru.ac.th"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="mb-1.5 block text-sm font-semibold text-[#1A1A2E]">
+              <label htmlFor="password" className="mb-1.5 block text-sm font-semibold text-[#1A1A2E] dark:text-gray-200">
                 รหัสผ่าน
               </label>
               <input
@@ -110,7 +118,7 @@ export default function LoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-xl border border-[#E5E3DC] bg-white px-4 py-2.5 text-sm outline-none transition focus:border-[#F5C400] focus:ring-2 focus:ring-[#F5C400]/25"
+                className="w-full rounded-xl border border-[#E5E3DC] bg-white px-4 py-2.5 text-sm outline-none transition focus:border-[#F5C400] focus:ring-2 focus:ring-[#F5C400]/25 dark:border-[#2e2e4a] dark:bg-[#1A1A2E] dark:text-white dark:placeholder:text-gray-600"
                 placeholder="••••••••"
               />
             </div>
@@ -134,8 +142,8 @@ export default function LoginPage() {
           </form>
 
           {/* Fast Login (dev only) */}
-          <div className="mt-6 border-t border-dashed border-gray-200 pt-5">
-            <p className="mb-3 text-center text-xs text-gray-400">เข้าสู่ระบบด่วน (ทดสอบ)</p>
+          <div className="mt-6 border-t border-dashed border-gray-200 dark:border-[#2e2e4a] pt-5">
+            <p className="mb-3 text-center text-xs text-gray-400 dark:text-gray-600">เข้าสู่ระบบด่วน (ทดสอบ)</p>
             <div className="flex gap-2">
               <button
                 type="button"
@@ -149,7 +157,7 @@ export default function LoginPage() {
                 type="button"
                 disabled={loading}
                 onClick={() => fastLogin("staff")}
-                className="flex-1 rounded-xl border border-[#E5E3DC] bg-white py-2 text-xs font-semibold text-gray-600 transition hover:border-[#F5C400]/40 hover:text-[#1A1A2E] disabled:opacity-60"
+                className="flex-1 rounded-xl border border-[#E5E3DC] bg-white py-2 text-xs font-semibold text-gray-600 transition hover:border-[#F5C400]/40 hover:text-[#1A1A2E] disabled:opacity-60 dark:border-[#2e2e4a] dark:bg-[#1A1A2E] dark:text-gray-300 dark:hover:border-[#F5C400]/40 dark:hover:text-white"
               >
                 👤 Staff
               </button>

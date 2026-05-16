@@ -47,7 +47,7 @@ export default function UserForm() {
           <input type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="รหัสผ่าน (อย่างน้อย 8 ตัว)" />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-gray-700">สังกัด/แผนก</label>
+          <label className="mb-1 block text-sm font-medium text-gray-700">ตำแหน่ง/แผนก</label>
           <input value={department} onChange={e => setDepartment(e.target.value)} className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400" placeholder="เช่น สำนักงานคณะ" />
         </div>
         <div>

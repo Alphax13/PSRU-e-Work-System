@@ -2,7 +2,7 @@
 
 You are helping build a production-ready web app using Next.js + Supabase.
 
-The system is an "Annual Performance Evaluation System" with 2 roles:
+The system is an "Performance Evaluation System" with 2 roles:
 
 * staff (fill form)
 * admin (manage system)

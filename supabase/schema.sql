@@ -1,5 +1,5 @@
 -- ============================================================
--- Annual Performance Evaluation System — Neon PostgreSQL Schema
+-- Performance Evaluation System — Neon PostgreSQL Schema
 -- ============================================================
 
 -- Enable UUID extension

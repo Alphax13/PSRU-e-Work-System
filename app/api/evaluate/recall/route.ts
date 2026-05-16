@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { sql } from "@/lib/db";
+import { logAudit } from "@/lib/audit";
 
 // PATCH /api/evaluate/recall  — revert a submitted evaluation back to draft
 // Body: { evaluationId: string }
@@ -34,6 +35,15 @@ export async function PATCH(req: NextRequest) {
     UPDATE evaluations SET status = 'draft', updated_at = NOW()
     WHERE id = ${evaluationId}
   `;
+
+  const pRows = await sql`SELECT name FROM evaluation_periods WHERE id = ${ev.period_id} LIMIT 1`;
+  const uRows = await sql`SELECT name, email FROM users WHERE id = ${session.user.id} LIMIT 1`;
+  await logAudit({
+    actorName:  (uRows[0]?.name  as string) ?? "",
+    actorEmail: (uRows[0]?.email as string) ?? "",
+    action: "ยกเลิกการส่งแบบประเมิน",
+    target: (pRows[0]?.name as string) ?? "",
+  });
 
   return NextResponse.json({ ok: true });
 }

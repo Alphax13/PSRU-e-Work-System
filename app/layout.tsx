@@ -3,6 +3,7 @@ import { Kanit, Playfair_Display, DM_Sans } from "next/font/google";
 import "./globals.css";
 import ThemeProvider from "@/components/ThemeProvider";
 import { SessionProvider } from "next-auth/react";
+import { ToastProvider } from "@/components/ui/Toast";
 
 const kanit = Kanit({
   subsets: ["thai", "latin"],
@@ -26,7 +27,7 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Annual Performance Evaluation System",
+  title: "Performance Evaluation System",
   description: "ระบบประเมินผลการปฏิบัติงานประจำปี",
 };
 
@@ -40,7 +41,9 @@ export default function RootLayout({
       <body className={`${kanit.className} overflow-x-hidden antialiased`} style={{ backgroundColor: "#FAFAF7", color: "#1C1C1C" }}>
         <ThemeProvider>
           <SessionProvider>
-            {children}
+            <ToastProvider>
+              {children}
+            </ToastProvider>
           </SessionProvider>
         </ThemeProvider>
       </body>

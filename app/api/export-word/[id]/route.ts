@@ -571,41 +571,72 @@ function sec5CriteriaTable2(rows: EntryRow[], score?: number, maxScore?: number)
 }
 
 /** Section 6 – เข้าร่วมกิจกรรมระดับคณะ */
-function sec6Table(rows: EntryRow[], score?: number, maxScore?: number) {
-  const W = [Math.round(CW * 0.40), Math.round(CW * 0.30), Math.round(CW * 0.30)];
-  const attended = rows.filter((r) => r["attended"] === "yes");
-
-  // Activities table (round 1 activities listed)
-  const actW = [Math.round(CW * 0.50), Math.round(CW * 0.50)];
-  const round1Acts = [
-    "กิจกรรมประชุมปิดภาคเรียน",
-    "กิจกรรมประชุมเปิดภาคเรียน",
-    "กิจกรรมโครงการรักษ์สุขภาพ",
-    "กิจกรรมประเพณีลอยกระทงของมหาวิทยาลัยฯ",
-    "กิจกรรมประชุมบุคลากรสายสนับสนุน 2 ครั้ง",
-  ];
-
-  // Score criteria table
+function sec6Table(
+  rounds: { period_name: string; activities: string[]; attended: Set<string> }[],
+  score?: number,
+  maxScore?: number
+) {
   const scoreW = [Math.round(CW * 0.40), Math.round(CW * 0.40), Math.round(CW * 0.20)];
-  const scoreCriteria: [string, string, string][] = [
-    ["กิจกรรมของคณะ", "1. กิจกรรมประชุมปิดภาคเรียน", "กิจกรรมประชุมปิดภาคเรียน"],
-    ["", "2. กิจกรรมประชุมเปิดภาคเรียน", "กิจกรรมประชุมเปิดภาคเรียน"],
-    ["", "3. กิจกรรมโครงการรักษ์สุขภาพ", "กิจกรรมโครงการรักษ์สุขภาพ"],
-    ["", "4. กิจกรรมประเพณีลอยกระทงของมหาวิทยาลัยฯ", "กิจกรรมประเพณีลอยกระทงของมหาวิทยาลัยฯ"],
-    ["", "5. กิจกรรมประชุมบุคลากรสายสนับสนุน 2 ครั้ง", "กิจกรรมประชุมบุคลากรสายสนับสนุน 2 ครั้ง"],
-  ];
+  const dataRows: TableRow[] = [];
+  const multiRound = rounds.length > 1;
 
-  // Check which activities were attended
-  const isAttended = (activityName: string) => {
-    return rows.some((r) => 
-      r.activity_name && 
-      String(r.activity_name).includes(activityName.replace(/^\d+\.\s*/, "")) && 
-      r.attended === "yes"
-    );
-  };
+  if (rounds.length === 0) {
+    dataRows.push(emptyRow(3, scoreW));
+  } else {
+    rounds.forEach((round, ri) => {
+      // Sub-header row for each round (only when multiple rounds)
+      if (multiRound) {
+        dataRows.push(
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [
+                  p(t(`รอบที่ ${ri + 1}: ${round.period_name}`, { bold: true, size: 28, color: "FFFFFF" }), AlignmentType.LEFT, 18, 18),
+                ],
+                columnSpan: 3,
+                borders: ALL_THIN,
+                shading: { type: ShadingType.CLEAR, fill: "2E4057" },
+                width: { size: CW, type: WidthType.DXA },
+                margins: { top: 18, bottom: 18, left: 80, right: 80 },
+              }),
+            ],
+          })
+        );
+      }
+
+      if (round.activities.length === 0) {
+        dataRows.push(
+          new TableRow({
+            children: [
+              new TableCell({
+                children: [p(t("ไม่มีกิจกรรมที่กำหนด", { size: 28, color: "AAAAAA", italic: true }), AlignmentType.CENTER, 18, 18)],
+                columnSpan: 3,
+                borders: ALL_THIN,
+                width: { size: CW, type: WidthType.DXA },
+                margins: { top: 18, bottom: 18, left: 80, right: 80 },
+              }),
+            ],
+          })
+        );
+      } else {
+        round.activities.forEach((name, i) => {
+          const isAtt = round.attended.has(name);
+          dataRows.push(
+            new TableRow({
+              children: [
+                tdCell(i === 0 ? "กิจกรรมของคณะ" : "", scoreW[0]),
+                tdCell(`${i + 1}. ${name}`, scoreW[1]),
+                tdCell(isAtt ? "✓" : "", scoreW[2], true),
+              ],
+            })
+          );
+        });
+      }
+    });
+  }
 
   return new Table({
-      layout: TableLayoutType.FIXED,
+    layout: TableLayoutType.FIXED,
     columnWidths: scoreW,
     rows: [
       new TableRow({
@@ -616,16 +647,7 @@ function sec6Table(rows: EntryRow[], score?: number, maxScore?: number) {
         ],
         tableHeader: true,
       }),
-      ...scoreCriteria.map(
-        ([cat, detail, actName]) =>
-          new TableRow({
-            children: [
-              tdCell(cat, scoreW[0]),
-              tdCell(detail, scoreW[1]),
-              tdCell(isAttended(actName) ? "✓" : "", scoreW[2], true),
-            ],
-          })
-      ),
+      ...dataRows,
       new TableRow({
         children: [
           new TableCell({
@@ -1038,6 +1060,63 @@ export async function GET(
   const s1 = g(1); const s2 = g(2); const s3 = g(3); const s4 = g(4);
   const s5 = g(5); const s6 = g(6); const s7 = g(7); const s8 = g(8);
 
+  // ── Fetch ALL periods' section 6 activities, grouped by round ──────
+  type Sec6Round = { period_name: string; activities: string[]; attended: Set<string> };
+  const sec6Rounds: Sec6Round[] = [];
+  const sec6Entry = entries.find((e) => Number(e.section_order) === 6);
+  if (sec6Entry?.section_id_col) {
+    try {
+      const allPeriodRows = await sql`
+        SELECT DISTINCT ep.id, ep.name, ep.start_date
+        FROM evaluation_periods ep
+        JOIN period_activities pa ON pa.period_id = ep.id
+        WHERE pa.section_id = ${sec6Entry.section_id_col as string}
+        ORDER BY ep.start_date
+      `;
+      for (const pRow of allPeriodRows) {
+        const acts = await sql`
+          SELECT name FROM period_activities
+          WHERE period_id = ${pRow.id as string} AND section_id = ${sec6Entry.section_id_col as string}
+          ORDER BY order_no
+        `;
+        let attended: Set<string>;
+        if (String(pRow.id) === String(ev.period_id)) {
+          attended = new Set(s6.rows.filter((r) => r.attended === "yes").map((r) => String(r.activity_name)));
+        } else {
+          const otherEntries = await sql`
+            SELECT en.data FROM evaluations ev2
+            JOIN entries en ON en.evaluation_id = ev2.id
+            WHERE ev2.user_id = ${ev.user_id as string}
+              AND ev2.period_id = ${pRow.id as string}
+              AND en.section_id = ${sec6Entry.section_id_col as string}
+            LIMIT 1
+          `;
+          const otherRows: EntryRow[] = (otherEntries[0]?.data as { rows?: EntryRow[] })?.rows ?? [];
+          attended = new Set(otherRows.filter((r) => r.attended === "yes").map((r) => String(r.activity_name)));
+        }
+        sec6Rounds.push({ period_name: String(pRow.name), activities: acts.map((a) => String(a.name)), attended });
+      }
+    } catch { /* skip */ }
+    // Fallback: use current period only if no rounds found
+    if (sec6Rounds.length === 0 && ev.period_id) {
+      try {
+        const acts = await sql`
+          SELECT name FROM period_activities
+          WHERE period_id = ${ev.period_id as string} AND section_id = ${sec6Entry.section_id_col as string}
+          ORDER BY order_no
+        `;
+        const actList = acts.map((a) => String(a.name));
+        if (actList.length > 0) {
+          sec6Rounds.push({
+            period_name: String(ev.period_name ?? ""),
+            activities: actList,
+            attended: new Set(s6.rows.filter((r) => r.attended === "yes").map((r) => String(r.activity_name))),
+          });
+        }
+      } catch { /* ignore */ }
+    }
+  }
+
   // ── Load PSRU logo from public/ folder ──────────────────────────────
   let logoBuffer: ArrayBuffer | null = null;
   try {
@@ -1107,7 +1186,7 @@ export async function GET(
       alignment: AlignmentType.CENTER,
       spacing: { after: 100 },
     }),
-    p(t("สังกัดคณะวิทยาศาสตร์และเทคโนโลยี", { bold: true, size: 40 }), AlignmentType.CENTER, 0, 0),
+    p(t("ตำแหน่งคณะวิทยาศาสตร์และเทคโนโลยี", { bold: true, size: 40 }), AlignmentType.CENTER, 0, 0),
     p(t("มหาวิทยาลัยราชภัฏพิบูลสงคราม", { bold: true, size: 40 }), AlignmentType.CENTER, 0, 0),
   );
 
@@ -1349,48 +1428,34 @@ export async function GET(
       t("ภาระงานด้านการเข้าร่วมกิจกรรมระดับคณะ หมายถึง ภาระงานการเข้าร่วมกิจกรรมตามกิจกรรมที่คณะกำหนดในแต่ละรอบการประเมิน", { size: 32 }),
       AlignmentType.LEFT, 0, 40
     ),
-    // Activities list table (2 rounds)
-    (() => {
-      const rW = [Math.round(CW * 0.50), Math.round(CW * 0.50)];
-      const round1 = [
-        "1. กิจกรรมประชุมปิดภาคเรียน",
-        "2. กิจกรรมประชุมเปิดภาคเรียน",
-        "3. กิจกรรมโครงการรักษ์สุขภาพ",
-        "4. กิจกรรมประเพณีลอยกระทงของมหาวิทยาลัยฯ",
-        "5. กิจกรรมประชุมบุคลากรสายสนับสนุน 2 ครั้ง",
-      ];
-      const round2 = [
-        "1. กิจกรรมประชุมปิดภาคเรียน",
-        "2. กิจกรรมประชุมเปิดภาคเรียน",
-        "3. กิจกรรมงานประเพณีสงกรานต์ของคณะ",
-        "4. กิจกรรมปฐมนิเทศนักศึกษาของคณะ",
-        "5. กิจกรรมประชุมบุคลากรสายสนับสนุน 2 ครั้ง",
-      ];
-      return new Table({
-      layout: TableLayoutType.FIXED,
-        columnWidths: rW,
-        rows: [
-          new TableRow({
-            children: [
-              thCell("รอบประเมิน ครั้งที่ 1 (กันยายน – กุมภาพันธ์)", rW[0]),
-              thCell("รอบประเมิน ครั้งที่ 2 (มีนาคม – สิงหาคม)", rW[1]),
-            ],
-            tableHeader: true,
-          }),
-          ...round1.map((r1, i) =>
-            new TableRow({
-              children: [
-                tdCell(r1, rW[0]),
-                tdCell(round2[i], rW[1]),
-              ],
-            })
-          ),
-        ],
-        width: { size: CW, type: WidthType.DXA },
-      });
-    })(),
-    blank(40),
-    // Score criteria
+  );
+  // Activities list — one table per round
+  if (sec6Rounds.length > 0) {
+    sec6Rounds.forEach((round, i) => {
+      const header = sec6Rounds.length > 1
+        ? `รอบที่ ${i + 1}: ${round.period_name}`
+        : `กิจกรรมในรอบ: ${round.period_name}`;
+      children.push(
+        new Table({
+          layout: TableLayoutType.FIXED,
+          columnWidths: [CW],
+          rows: [
+            new TableRow({ children: [thCell(header, CW)], tableHeader: true }),
+            ...(round.activities.length > 0
+              ? round.activities.map((name, j) =>
+                  new TableRow({ children: [tdCell(`${j + 1}. ${name}`, CW)] })
+                )
+              : [new TableRow({ children: [new TableCell({ children: [p(t("ไม่มีกิจกรรมที่กำหนด", { size: 28, color: "AAAAAA", italic: true }), AlignmentType.CENTER, 18, 18)], borders: ALL_THIN, width: { size: CW, type: WidthType.DXA }, margins: { top: 18, bottom: 18, left: 80, right: 80 } })] })]
+            ),
+          ],
+          width: { size: CW, type: WidthType.DXA },
+        }),
+        i < sec6Rounds.length - 1 ? blank(16) : blank(40)
+      );
+    });
+  }
+  // Score criteria table + result table
+  children.push(
     (() => {
       const sW = [Math.round(CW * 0.10), Math.round(CW * 0.60), Math.round(CW * 0.30)];
       const items: [string, string, string][] = [
@@ -1410,7 +1475,7 @@ export async function GET(
       });
     })(),
     blank(40),
-    sec6Table(s6.rows, s6.score, s6.max_score || 2)
+    sec6Table(sec6Rounds, s6.score, s6.max_score || 2)
   );
 
   // ── SECTION 7 ────────────────────────────────────────────────────
@@ -1479,29 +1544,43 @@ export async function GET(
   );
 
   // ── ACTIVITY IMAGES ──────────────────────────────────────────────
-  // Collect all activities with evidence (images)
-  const activitiesWithImages: { topic: string; imageUrl: string; date?: string }[] = [];
-  
+  // Collect all activities with evidence (images) from every section
+  const activitiesWithImages: {
+    sectionNo: number;
+    sectionName: string;
+    topic: string;
+    imageUrl: string;
+    date?: string;
+  }[] = [];
+
   for (const entry of entries ?? []) {
-    const sec = entry.sections as {
-      id: string; name: string; order_no: number;
-    } | null | undefined;
-    if (!sec) continue;
+    const secOrderNo = Number(entry.section_order);
+    const secName = String(entry.section_name ?? "");
     const rows: EntryRow[] = ((entry.data as { rows?: EntryRow[] })?.rows ?? []);
-    
-    // Check sections 2 and 4 only (ภาระงานด้านการพัฒนาตนเอง และ ทำนุบำรุงศิลปวัฒนธรรม)
-    if ([2, 4].includes(sec.order_no)) {
-      for (const row of rows) {
-        if (row.evidence && typeof row.evidence === 'string' && row.evidence.trim() !== '') {
-          activitiesWithImages.push({
-            topic: String(row.topic || row.activity_name || 'กิจกรรม'),
-            imageUrl: String(row.evidence),
-            date: row.date ? String(row.date) : undefined,
-          });
-        }
+
+    for (const row of rows) {
+      if (row.evidence && typeof row.evidence === "string" && row.evidence.trim() !== "") {
+        activitiesWithImages.push({
+          sectionNo: secOrderNo,
+          sectionName: secName,
+          topic: String(row.topic || row.activity_name || "กิจกรรม"),
+          imageUrl: String(row.evidence),
+          date: row.date ? String(row.date) : undefined,
+        });
       }
     }
   }
+
+  // Sort by section order so images appear in document order
+  activitiesWithImages.sort((a, b) => a.sectionNo - b.sectionNo);
+
+  // Helper: resolve relative image URL to absolute
+  const resolveImageUrl = (url: string) => {
+    if (url.startsWith("http://") || url.startsWith("https://")) return url;
+    const protocol = process.env.NODE_ENV === "production" ? "https://" : "http://";
+    const host = process.env.VERCEL_URL || "localhost:3000";
+    return `${protocol}${host}${url.startsWith("/") ? "" : "/"}${url}`;
+  };
 
   // Add images section if there are any
   if (activitiesWithImages.length > 0) {
@@ -1510,57 +1589,54 @@ export async function GET(
       p(t("ภาพประกอบกิจกรรม", { bold: true, size: 36 }), AlignmentType.CENTER, 0, 80)
     );
 
-    for (const activity of activitiesWithImages) {
-      try {
-        // Determine full URL (handle relative paths)
-        let imageUrl = activity.imageUrl;
-        if (!imageUrl.startsWith('http://') && !imageUrl.startsWith('https://')) {
-          // If relative path, construct full URL
-          const protocol = process.env.NODE_ENV === 'production' ? 'https://' : 'http://';
-          const host = process.env.VERCEL_URL || 'localhost:3000';
-          imageUrl = `${protocol}${host}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`;
-        }
+    let lastSectionNo = -1;
 
-        // Fetch image from URL
+    for (const activity of activitiesWithImages) {
+      // Print section heading whenever section changes
+      if (activity.sectionNo !== lastSectionNo) {
+        lastSectionNo = activity.sectionNo;
+        children.push(
+          new Paragraph({
+            children: [
+              t(`หมวดที่ ${activity.sectionNo}  ${activity.sectionName}`, { bold: true, size: 32 }),
+            ],
+            spacing: { before: 200, after: 80 },
+            border: { bottom: { style: BorderStyle.SINGLE, size: 4, color: "AAAAAA" } },
+          })
+        );
+      }
+
+      try {
+        const imageUrl = resolveImageUrl(activity.imageUrl);
+
         const imageRes = await fetch(imageUrl);
         if (!imageRes.ok) {
           console.error(`Failed to fetch image: ${imageUrl} - Status: ${imageRes.status}`);
           continue;
         }
-        
+
         const arrayBuffer = await imageRes.arrayBuffer();
         const imageData = new Uint8Array(arrayBuffer);
 
         // Determine image type from URL
         const urlLower = imageUrl.toLowerCase();
         let imageType: "png" | "jpg" | "bmp" | "gif" = "jpg";
-        if (urlLower.includes('.png')) imageType = "png";
-        else if (urlLower.includes('.gif')) imageType = "gif";
-        else if (urlLower.includes('.bmp')) imageType = "bmp";
-        // Default to jpg for .jpg, .jpeg, and unknown types
+        if (urlLower.includes(".png")) imageType = "png";
+        else if (urlLower.includes(".gif")) imageType = "gif";
+        else if (urlLower.includes(".bmp")) imageType = "bmp";
 
-        // Add activity title
+        // Activity title
         children.push(
-          p(
-            t(activity.topic, { bold: true, size: 32 }),
-            AlignmentType.CENTER,
-            40,
-            20
-          )
+          p(t(activity.topic, { bold: true, size: 32 }), AlignmentType.CENTER, 40, 20)
         );
 
         if (activity.date) {
           children.push(
-            p(
-              t(`วันที่ ${activity.date}`, { size: 28, italic: true }),
-              AlignmentType.CENTER,
-              0,
-              40
-            )
+            p(t(`วันที่ ${activity.date}`, { size: 28, italic: true }), AlignmentType.CENTER, 0, 40)
           );
         }
 
-        // Add image (max width 6 inches to fit on A4)
+        // Image (max ~6 inches wide to fit A4 content area)
         children.push(
           new Paragraph({
             children: [
@@ -1575,7 +1651,6 @@ export async function GET(
           })
         );
       } catch (err) {
-        // Skip images that fail to load
         console.error(`Failed to load image for ${activity.topic}:`, err);
       }
     }

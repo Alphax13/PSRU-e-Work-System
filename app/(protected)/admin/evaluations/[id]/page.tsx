@@ -46,7 +46,7 @@ export default async function EvalDetailPage({ params }: { params: Promise<{ id:
       <div className="grid gap-4 rounded-xl bg-white p-5 shadow-sm sm:grid-cols-2 lg:grid-cols-4">
         <InfoItem label="ชื่อ-นามสกุล" value={ev.user_name as string} />
         <InfoItem label="อีเมล" value={ev.user_email as string} />
-        <InfoItem label="สังกัด" value={ev.user_department as string} />
+        <InfoItem label="ตำแหน่ง" value={ev.user_department as string} />
         <InfoItem label="รอบประเมิน" value={ev.period_name as string} />
         <InfoItem label="สถานะ" value={ev.status === "submitted" ? "ส่งแล้ว" : "ฉบับร่าง"} />
         <InfoItem label="คะแนนรวม" value={`${ev.total_score} คะแนน`} highlight />
