@@ -97,7 +97,7 @@ export default async function AdminEvalDetailPage({
           <div className="min-w-0 flex-1">
             <p className="font-semibold text-[#1A1A2E] dark:text-white">{ev.user_name as string}</p>
             <p className="text-xs text-gray-500 dark:text-gray-400">{ev.user_email as string}</p>
-            {ev.user_department && (
+            {(ev.user_department as string | null) && (
               <p className="text-xs text-gray-400 dark:text-gray-500">{ev.user_department as string}</p>
             )}
           </div>
