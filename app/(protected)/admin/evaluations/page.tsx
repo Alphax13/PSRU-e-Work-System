@@ -103,9 +103,7 @@ export default async function EvaluationsPage({
                     {ev.status === "submitted" ? (ev.total_score as number) : "-"}
                   </td>
                   <td className="px-4 py-3">
-                    {ev.status === "submitted" && (
-                      <a href={`/admin/evaluations/${ev.id as string}`} className="rounded-lg bg-[#1A1A2E] px-3 py-1 text-xs font-medium text-[#F5C400] hover:bg-[#2e2e4a]">ดูรายละเอียด</a>
-                    )}
+                    <a href={`/admin/evaluations/${ev.id as string}`} className="rounded-lg bg-[#1A1A2E] px-3 py-1 text-xs font-medium text-[#F5C400] hover:bg-[#2e2e4a]">ดูรายละเอียด</a>
                   </td>
                 </tr>
             ))}

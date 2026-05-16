@@ -63,7 +63,7 @@ export default function DashboardCharts({ data }: { data: PeriodStat[] }) {
             <YAxis tick={{ fontSize: 10 }} />
             <Tooltip
               contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #E5E3DC" }}
-              formatter={(v: number) => [`${v} คะแนน`, "คะแนนเฉลี่ย"]}
+              formatter={(v) => [`${typeof v === "number" ? v.toFixed(2) : (v ?? "-")} คะแนน`, "คะแนนเฉลี่ย"]}
             />
             <Line
               type="monotone"
